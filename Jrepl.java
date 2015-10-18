@@ -209,16 +209,16 @@ public class Jrepl
 						System.out.println("Please enter a return type for the function: ");
 						input=new Scanner(System.in);
 						String type=input.nextLine();
-						functions="public static "+type+" "+cmd;
-						cmd=cmd.substring(1, cmd.length());
+						
 						System.out.println("please define the function: ");
 						
+						cmd=cmd.substring(1, cmd.length());
 						while((!cmd.contains(";")&&!cmd.equals(""))||(cmd.contains("{")&&!cmd.contains("}"))||(cmd.contains("(")&&!cmd.contains(")")))
 							{
 								input=new Scanner(System.in);
 								cmd+=input.nextLine();
 							}
-						
+						functions="public static "+type+" "+cmd;
 						bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
 	   					bufferedWriter.write(functions);
 	   					bufferedWriter.newLine();

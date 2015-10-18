@@ -37,7 +37,14 @@ Some instructions and notes.
 	If className has already been created, a message stating so will appear. 
 	While defining the class, only enter the content between the {} in a class definition, including the closing brace, 
 	ommiting the opening one
-	--------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------------------
+	If you make an error while typing in a command, don't worry about! JRepl will automatically rollback to before you entered 
+	that command.
+	However, if you make a mistake while declaring a function or a class, there is currently no support to rollback, and hence,
+	the program must be restarted.
+	Furthermore, all print statements will be deleted after they are run once, but operations, assignments and other functions
+	will persist within a session so that you can still use your variable across commands.
+	--------------------------------------------------------------------------------------------------------------------------	
 	Some features that I may implement in the future:
 		*A faster compiling system
 		*Cleaner syntax for class and function definitions
@@ -45,5 +52,6 @@ Some instructions and notes.
 		*Better system for handling variables
 		*Option to save work to file
 		*Support for non-windows platforms
+		*Error deletion for functions and classes
 Author: Aneesh Durg
 	made at BoilerMake2015
