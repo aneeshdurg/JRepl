@@ -1,7 +1,5 @@
 # JRepl
-Jrepl - A read-eval-print-loop for Java (See about.txt)
-
-JREPLv.1.0 - A READ-EVAL-PRINT-LOOP FOR JAVA
+Jrepl - A read-eval-print-loop for Java 
 
 Why?
 
