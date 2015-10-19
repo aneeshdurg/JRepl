@@ -8,7 +8,15 @@ public class Jrepl
 	static String header="Jrepl v.1.0 - A read-eval-print-loop for java \n";
 	public static void main(String[] args) throws Exception
 	{
-		Process p = Runtime.getRuntime().exec("delfiles.bat /c start /wait");
+		Process p = null;
+		if (System.getProperty("os.name").startsWith("Windows"))
+		{
+			p = Runtime.getRuntime().exec("delfiles.bat /c start /wait");
+		}
+		else
+		{
+			p = Runtime.getRuntime().exec("delfiles_unix.sh /c start /wait");
+		}
 		p.waitFor();
 		while(true)
 		{
@@ -329,8 +337,19 @@ public class Jrepl
 	}
 	public static void compile() throws Exception
 	{
-		Process p = Runtime.getRuntime().exec("compile.bat /c start /wait");
+		System.out.println("[processing......]");
+		Process p = null;
+		if (System.getProperty("os.name").startsWith("Windows"))
+		{
+			p = Runtime.getRuntime().exec("compile.bat /c start /wait");
+		}
+		else
+		{
+			p = Runtime.getRuntime().exec("compile.sh /c start /wait");
+		}
 		p.waitFor();
+		System.out.println("");
+		System.out.println("[Done processing!]");
 	}
 	public static int left(String s)
 	{
