@@ -15,7 +15,7 @@ public class Jrepl
 		}
 		else
 		{
-			p = Runtime.getRuntime().exec("delfiles_unix.sh /c start /wait");
+			p = Runtime.getRuntime().exec("sudo ./delfiles_unix.sh /wait");
 		}
 		p.waitFor();
 		while(true)
