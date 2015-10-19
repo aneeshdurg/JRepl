@@ -201,7 +201,7 @@ public class Jrepl
 					String choice=input.nextLine();
 					if (choice.charAt(0)=='y')
 					{
-						cmd=cmd.substring(1, cmd.length());
+						cmd=cmd.substring(1, cmd.length())+";";
 					}
 					else
 					{
@@ -311,7 +311,7 @@ public class Jrepl
 	   		bufferedWriter.newLine();
 	   		// flush
 	   		bufferedWriter.flush();
-		   		compile();
+		   	compile();
 	   		String errors=readfile("compileerrs.txt");
 	   		if (errors.length()<=0)
 	   		{
@@ -324,16 +324,42 @@ public class Jrepl
 	   			file = file.substring(0, file.length() - cmd.length());
 	   		}
 	  		System.out.println(readfile("results.txt"));
-	   		if (!cmd.isEmpty()&&cmd.charAt(0)=='S')
+	   		/*if (!cmd.isEmpty()&&cmd.charAt(0)=='S')
 	   		{
 	   			file = file.substring(0, file.length() - cmd.length());
-	   		}
+	   		}*/
+	   		pw = new PrintWriter("functions.java");
+			pw.close();
+			pw = new PrintWriter("classes.java");
+			pw.close();
 
-	   		while(file.indexOf("System.out.println(")>-1)
-	   			file = file.substring(0, file.indexOf("System.out.println(")-1)+file.substring(file.indexOf(")", file.indexOf("System.out.println(")-1), file.length());
-	   		while(file.indexOf("System.out.print(")>-1)
-	   			file = file.substring(0, file.indexOf("System.out.print(")-1)+file.substring(file.indexOf(")", file.indexOf("System.out.print(")-1), file.length());	   		
+	   		file=noprint(file);
+	   		
+	   		functions=noprint(functions);
+	   		
+	   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
+			bufferedWriter.write(functions);
+			// write a new line
+	   		bufferedWriter.newLine();
+	   		// flush
+	   		bufferedWriter.flush();
+
+	   		classes=noprint(classes);	
+	   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
+			bufferedWriter.write(classes);
+			// write a new line
+	   		bufferedWriter.newLine();
+	   		// flush
+	   		bufferedWriter.flush();   		
 		}
+	}
+	public static String noprint(String s)
+	{
+		while(s.indexOf("System.out.println(")>-1)
+	   		s = s.substring(0, s.indexOf("System.out.println("))+s.substring(s.indexOf(";", s.indexOf("System.out.println(")-1)+1, s.length());
+	   	while(s.indexOf("System.out.print(")>-1)
+	   		s = s.substring(0, s.indexOf("System.out.print("))+s.substring(s.indexOf(";", s.indexOf("System.out.print(")-1), s.length());
+		return s;
 	}
 	public static void compile() throws Exception
 	{
@@ -345,7 +371,7 @@ public class Jrepl
 		}
 		else
 		{
-			p = Runtime.getRuntime().exec("compile.sh /c start /wait");
+			p = Runtime.getRuntime().exec("sudo ./compile_unix.sh /wait");
 		}
 		p.waitFor();
 		System.out.println("");
