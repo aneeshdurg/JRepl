@@ -16,32 +16,27 @@ What and How?
 	quick test program in Java by creating and compiling temporary files for you.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Some instructions and notes.
-	To create a new function use the following syntax:
-		:[functionName]()
-	If functionName has already been created, you will be prompted to run the function instead.
-	Alternatively, the syntax
-		:<type> [functionName]() 
-	can be used to create a function of type <type>. If syntax 1 is used, the user will have to enter a type while 
-	defining the function. 
-	Please note that through syntax 2 not all types are supported! Only the following typed functions can be created:
-		*int
-		*char
-		*double
-		*float
-		*boolean
-		*String
-	While defining the function, only enter the content between and including the {} in a function definition
-        --------------------------------------------------------------------------------------------------------------------------
-	To create a new class use the following syntax:
-		::[className]
-	If className has already been created, a message stating so will appear. 
-	While defining the class, only enter the content between the {} in a class definition, including the closing brace, 
-	ommiting the opening one
+	Most commands use standard java syntax
+	To get a quick overview on the custom syntax enter -help in Jrepl
+	For example:
+		Function declarations:
+			:function()
+				or
+			:<type> function()
+					note:
+					     only the following types can be used
+					     with this syntax:
+					     -int
+					     -char
+					     -double
+					     -float
+					     -boolean
+					     -String
 	---------------------------------------------------------------------------------------------------------------------------
 	If you make an error while typing in a command, don't worry about! JRepl will automatically rollback to before you entered 
 	that command.
 	However, if you make a mistake while declaring a function or a class, there is currently no support to rollback, and hence,
-	the program must be restarted.
+	the program must be restarted or you must manually edit or delete the files functions.java and classes.java.
 	Furthermore, all print statements will be deleted after they are run once, but operations, assignments and other functions
 	will persist within a session so that you can still use your variable across commands.
 	--------------------------------------------------------------------------------------------------------------------------	

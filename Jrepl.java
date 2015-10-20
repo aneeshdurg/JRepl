@@ -58,7 +58,7 @@ public class Jrepl
 		pw = new PrintWriter("functions.java");
 		pw.close();
 		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-		String file="public class Test{public static void main(String[] args){";
+		String file="public class Test{public static void main(String[] args)throws Exception{";
 		Scanner input=new Scanner(System.in);
 		String cmd;
 		String functions="";
@@ -373,6 +373,8 @@ public class Jrepl
 	   		s = s.substring(0, s.indexOf("System.out.println("))+s.substring(s.indexOf(";", s.indexOf("System.out.println(")-1)+1, s.length());
 	   	while(s.indexOf("System.out.print(")>-1)
 	   		s = s.substring(0, s.indexOf("System.out.print("))+s.substring(s.indexOf(";", s.indexOf("System.out.print(")-1), s.length());
+		while(s.indexOf("writeLine()")>-1)
+	   		s = s.substring(0, s.indexOf("writeLine("))+s.substring(s.indexOf(";", s.indexOf("writeLine(")-1), s.length());
 		return s;
 	}
 	public static void compile() throws Exception

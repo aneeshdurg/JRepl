@@ -1,7 +1,0 @@
-test.java:1: error: not a statement
-import java.io.*;public class Test{public static void main(String[] args){buffer}
-                                                                          ^
-test.java:1: error: ';' expected
-import java.io.*;public class Test{public static void main(String[] args){buffer}
-                                                                                ^
-2 errors
