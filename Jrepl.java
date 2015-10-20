@@ -49,36 +49,6 @@ public class Jrepl
 			}
 		}
 	}
-	public static String readfile (String file) throws Exception
-	{
-		String result="";
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-		String line="";
-		int counter=0;
-		
-
-		while (line !=null)
-   		{
-   			
-   			
-   			line=bufferedReader.readLine();
-   			if(line==null)
-   			{
-   				result=result;
-   			}
-   			else
-   			{
-   				result+=line+"\n";
-   			}
-   			
-   			
- 
-   		}
-   		
-   		
-  		result+="";
-   		return result;
-	}
 	
 	public static void repl() throws Exception
 	{
@@ -93,6 +63,7 @@ public class Jrepl
 		String cmd;
 		String functions="";
 		String classes="";
+		String imports="";
 		System.out.println(header);
 		while(true)
 		{
@@ -275,6 +246,36 @@ public class Jrepl
 				}
 					
 			}
+			else if(cmd.charAt(0)=='-')
+			{
+				cmd=cmd.substring(1, cmd.length());
+				if (cmd.startsWith("import"))
+				{
+					if(!cmd.endsWith(";"))
+						cmd+=";";
+					imports+=cmd;
+				}
+				else if(cmd.equals("buffer"))
+				{
+					System.out.println(readfile("Test.java"));
+				}
+				else if(cmd.equals("version"))
+				{
+					System.out.println("\t"+header+"\n\t\t-Aneesh Durg");
+			   		
+				}
+				else if(cmd.equals("help"))
+				{
+					System.out.println(header);
+					System.out.println(readfile("help.txt"));
+				}
+				else
+				{
+					System.out.println("Unknown command! Please try again or enter -help.");
+				}
+				cmd="";
+
+			}
 			else
 			{
 				/*if (cmd.contains("int ")||cmd.contains("char ")||cmd.contains("String ")||cmd.contains("double ")
@@ -282,9 +283,16 @@ public class Jrepl
 				{
 
 				}*/
-				if(((cmd.contains("+")||cmd.contains("-")||cmd.contains("/")||cmd.contains("*")||cmd.contains("%"))&&!cmd.contains("="))
-					||(cmd.contains("==")||cmd.contains("||")||cmd.contains("&&")))
-					cmd="System.out.println("+cmd+");";
+				if((((cmd.contains("+")||cmd.contains("-")||cmd.contains("/")||cmd.contains("*")||cmd.contains("%"))&&!cmd.contains("="))
+					||(cmd.contains("==")||cmd.contains("||")||cmd.contains("&&")))&&!cmd.contains("System.out.print"))
+					{
+						if (cmd.endsWith(";"))
+						{
+							cmd=cmd.substring(0, cmd.length()-1);
+						}
+						cmd="System.out.println("+cmd+");";
+					}
+					
 				if(cmd.equals("exit"))
 				{
 					System.exit(0);
@@ -295,62 +303,68 @@ public class Jrepl
 					cmd+=input.nextLine();
 				}
 			}
-
-			file+=cmd;
-			
-			//file=file.trim();
-			//System.out.println(file);
-			pw = new PrintWriter("Test.java");
-			pw.close();
-			bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-			functions=readfile("functions.java");
-			if (functions.equals(null))
-				functions=" ";
-	   		bufferedWriter.write(file+"}"+functions+"}"+classes);
-			// write a new line
-	   		bufferedWriter.newLine();
-	   		// flush
-	   		bufferedWriter.flush();
-		   	compile();
-	   		String errors=readfile("compileerrs.txt");
-	   		if (errors.length()<=0)
-	   		{
-	   			System.out.println("No errors!");
+				file+=cmd;
+				
+				//file=file.trim();
+				//System.out.println(file);
+				pw = new PrintWriter("Test.java");
+				pw.close();
+				bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
+				functions=readfile("functions.java");
+				if (functions.equals(null))
+					functions=" ";
+		   		bufferedWriter.write(imports+file+"}"+functions+"}"+classes);
+				// write a new line
+		   		bufferedWriter.newLine();
+		   		// flush
+		   		bufferedWriter.flush();
+			if(!cmd.equals(""))
+			{
+			   	compile();
+		   		String errors=readfile("compileerrs.txt");
+		   		if (errors.length()<=0)
+		   		{
+		   			System.out.println("No errors!");
+		   		}
+		  		else
+		   		{
+		   			System.out.println(errors);
+		   			
+		   			file = file.substring(0, file.length() - cmd.length());
+		   		}
+		  		System.out.println(readfile("results.txt"));
+		   		/*if (!cmd.isEmpty()&&cmd.charAt(0)=='S')
+		   		{
+		   			file = file.substring(0, file.length() - cmd.length());
+		   		}*/
 	   		}
-	  		else
+	   		else
 	   		{
-	   			System.out.println(errors);
-	   			
-	   			file = file.substring(0, file.length() - cmd.length());
-	   		}
-	  		System.out.println(readfile("results.txt"));
-	   		/*if (!cmd.isEmpty()&&cmd.charAt(0)=='S')
-	   		{
-	   			file = file.substring(0, file.length() - cmd.length());
-	   		}*/
-	   		pw = new PrintWriter("functions.java");
-			pw.close();
-			pw = new PrintWriter("classes.java");
-			pw.close();
+	   			System.out.println("\n[Done processing!]\n");
+	   		} 		
+		   		pw = new PrintWriter("functions.java");
+				pw.close();
+				pw = new PrintWriter("classes.java");
+				pw.close();
 
-	   		file=noprint(file);
-	   		
-	   		functions=noprint(functions);
-	   		
-	   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-			bufferedWriter.write(functions);
-			// write a new line
-	   		bufferedWriter.newLine();
-	   		// flush
-	   		bufferedWriter.flush();
+		   		file=noprint(file);
+		   		
+		   		functions=noprint(functions);
+		   		
+		   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
+				bufferedWriter.write(functions);
+				// write a new line
+		   		bufferedWriter.newLine();
+		   		// flush
+		   		bufferedWriter.flush();
 
-	   		classes=noprint(classes);	
-	   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
-			bufferedWriter.write(classes);
-			// write a new line
-	   		bufferedWriter.newLine();
-	   		// flush
-	   		bufferedWriter.flush();   		
+		   		classes=noprint(classes);	
+		   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
+				bufferedWriter.write(classes);
+				// write a new line
+		   		bufferedWriter.newLine();
+		   		// flush
+		   		bufferedWriter.flush();  
 		}
 	}
 	public static String noprint(String s)
@@ -400,5 +414,35 @@ public class Jrepl
     		}	 
 		}
 		return counter;
+	}
+	public static String readfile (String file) throws Exception
+	{
+		String result="";
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+		String line="";
+		int counter=0;
+		
+
+		while (line !=null)
+   		{
+   			
+   			
+   			line=bufferedReader.readLine();
+   			if(line==null)
+   			{
+   				result=result;
+   			}
+   			else
+   			{
+   				result+=line+"\n";
+   			}
+   			
+   			
+ 
+   		}
+   		
+   		
+  		result+="";
+   		return result;
 	}
 }
