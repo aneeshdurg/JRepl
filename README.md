@@ -1,4 +1,6 @@
 # JRepl
+![Jrepl](http://i.imgur.com/u7l4q2G.png "Jrepl")
+
 Jrepl - A read-eval-print-loop for Java 
 
 Why?
