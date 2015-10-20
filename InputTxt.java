@@ -3,22 +3,22 @@ import java.io.*;
 public class InputTxt
 {
 	private String input="";
-	public void main(String[] args) throws Exception
-	{
-		writeLine();
-	}
-	public void writeLine() throws Exception
-	{
-		Process p=Runtime.getRuntime().exec("cmd /c start /wait input.bat");
-		p.waitFor();
-	}
+   private static int id=0;
+   private int name=0;
+   public InputTxt()
+   {
+      name=id;
+      id++;
+   }
 	public String getLine() throws Exception
 	{
-		input=readfile("input.txt");
+		Process p=Runtime.getRuntime().exec("cmd /c start /wait input.bat "+id);
+		p.waitFor();
+		input=readfile(id+".txt");
 		return input;
 	}
 
-	public String readfile (String file) throws Exception
+	private String readfile (String file) throws Exception
 	{
 		String result="";
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
@@ -48,4 +48,10 @@ public class InputTxt
   		result+="";
    		return result;
 	}
+
+   public String gotLine() throws Exception
+   {
+	   input=readfile(id+".txt");
+      return input;
+   }
 }

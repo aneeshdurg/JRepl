@@ -1,3 +1,22 @@
+JRepl commands:
+	-help
+		Displays this help message.
+	-buffer
+		Displays the previously written commands
+		(does not update until next command is
+		  written, this will cause it to see a 	
+		  false version after -reset is called)
+	-reset
+		Resets all files, thus deleting previous
+		commands, functions and classes.
+	-import
+		Tells JRepl to add the following packages
+		to the compiler. See "Importing a package"
+		below for full syntax.
+	-InputTxt
+		Documentation for the InputTxt class. See 
+		"Getting user input" below for more details.
+
 Function declarations:
 	:function()
 		or
@@ -32,4 +51,12 @@ Evaluating expressions:
 		     to print. However, errors will not be thrown if
 		     you do.
 
+Getting user input:
+	Although the purpose of JRepl is not to make full Java applications,
+	I felt as though getting user input should be enabled. However, due to
+	the nature of the JRepl compiler and output renderer, using the Scanner
+	class would cause the program to freeze. As a result a very basic batch
+	application has been integrated which can be called from the InputTxt class.
+	Enter -InputTxt or open the file InputTxt.txt for more information.
+	
 ***ALL OTHER COMMANDS ARE STANDARD JAVA SYNTAX***

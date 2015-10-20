@@ -58,7 +58,7 @@ public class Jrepl
 		pw = new PrintWriter("functions.java");
 		pw.close();
 		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-		String file="public class Test{public static void main(String[] args)throws Exception{";
+		String file="public class Test{public static void main(String[] args)throws Exception{\n";
 		Scanner input=new Scanner(System.in);
 		String cmd;
 		String functions="";
@@ -253,7 +253,7 @@ public class Jrepl
 				{
 					if(!cmd.endsWith(";"))
 						cmd+=";";
-					imports+=cmd;
+					imports+=cmd+"\n";
 				}
 				else if(cmd.equals("buffer"))
 				{
@@ -268,6 +268,23 @@ public class Jrepl
 				{
 					System.out.println(header);
 					System.out.println(readfile("help.txt"));
+				}
+				else if(cmd.equals("InputTxt"))
+				{
+					System.out.println(readfile("InputTxt.txt"));
+				}
+				else if(cmd.equals("reset"))
+				{
+					Process p = null;
+					if (System.getProperty("os.name").startsWith("Windows"))
+					{
+						p = Runtime.getRuntime().exec("delfiles.bat /c start /wait");
+					}
+					else
+					{
+						p = Runtime.getRuntime().exec("sudo ./delfiles_unix.sh /wait");
+					}
+					p.waitFor();
 				}
 				else
 				{
@@ -313,7 +330,7 @@ public class Jrepl
 				functions=readfile("functions.java");
 				if (functions.equals(null))
 					functions=" ";
-		   		bufferedWriter.write(imports+file+"}"+functions+"}"+classes);
+		   		bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
 				// write a new line
 		   		bufferedWriter.newLine();
 		   		// flush
@@ -373,8 +390,8 @@ public class Jrepl
 	   		s = s.substring(0, s.indexOf("System.out.println("))+s.substring(s.indexOf(";", s.indexOf("System.out.println(")-1)+1, s.length());
 	   	while(s.indexOf("System.out.print(")>-1)
 	   		s = s.substring(0, s.indexOf("System.out.print("))+s.substring(s.indexOf(";", s.indexOf("System.out.print(")-1), s.length());
-		while(s.indexOf("writeLine()")>-1)
-	   		s = s.substring(0, s.indexOf("writeLine("))+s.substring(s.indexOf(";", s.indexOf("writeLine(")-1), s.length());
+		while(s.indexOf(".getLine()")>-1)
+	   		s = s.substring(0, s.indexOf(".getLine();"))+".gotLine();"+s.substring(s.indexOf("getLine();")+10, s.length());
 		return s;
 	}
 	public static void compile() throws Exception
