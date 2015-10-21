@@ -11,6 +11,9 @@ How to use InputTxt:
 		the JRepl directory. Each instance of InputTxt is given a 
 		unique Id.
 
+	Always create a new object for each time you want to get input. This is 
+	to avoid a String reading newer input which may not be what you inteded.  
+
 	Note that InputTxt is a very barebones class for getting input and is
 	not intended to be a major part of JRepl. It is only included for the 
 	sake of a complete Java experience. JRepl is intended for simpler

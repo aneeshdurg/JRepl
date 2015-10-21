@@ -373,13 +373,9 @@ public class Jrepl
 	}
 	public static String noprint(String s)
 	{
-		while(s.indexOf("System.out.println(")>-1)
-		{
-	   		s = /*s.substring(0, s.indexOf("System.out.println("))+*/s.substring(s.indexOf(";", s.indexOf("System.out.println(")-1)+1, s.length());
-	   		System.out.println(s);
-	   	}
-	   	while(s.indexOf("System.out.print(")>-1)
-	   		s = s.substring(0, s.indexOf("System.out.print("))+s.substring(s.indexOf(";", s.indexOf("System.out.print(")-1), s.length());
+		while(s.indexOf("System.out.print")>-1)
+	   		s = s.substring(0, s.indexOf("System.out.print"))+s.substring(s.indexOf(";", s.indexOf("System.out.print"))+1, s.length());
+	   	
 		while(s.indexOf(".getLine()")>-1)
 	   		s = s.substring(0, s.indexOf(".getLine();"))+".gotLine();"+s.substring(s.indexOf("getLine();")+10, s.length());
 		
