@@ -1,6 +1,12 @@
 JRepl commands:
 	-help
 		Displays this help message.
+	-about 
+		Displays the about.txt document which
+		explains some of the motivations and
+		details behind this project.
+	-quine
+		Displays the source code.
 	-buffer
 		Displays the previously written commands
 		(does not update until next command is

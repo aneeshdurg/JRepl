@@ -5,7 +5,7 @@ import java.io.*;
 public class Jrepl
 {
 	
-	static String header="Jrepl v.1.3 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.3 - A read-eval-print-loop for java \n";
 	public static void main(String[] args) throws Exception
 	{
 		Process p = null;
@@ -18,36 +18,13 @@ public class Jrepl
 			p = Runtime.getRuntime().exec("sudo ./delfiles_unix.sh /wait");
 		}
 		p.waitFor();
-		while(true)
-		{
-			System.out.println("Welcome to Jrepl! A read-eval-print-loop for java.");
-			System.out.println("Press 0 to read about this project");
-			System.out.println("Press 1 to run a quine");
-			System.out.println("Press any other key to begin.");
-			System.out.print("> ");
-			Scanner input=new Scanner(System.in);
-			String choice="";
-			choice+=input.nextLine();
-			if (choice.equals("0"))
-			{
-				System.out.println(readfile("about.txt"));
-				System.out.println("######*END OF ABOUT*#####");
-				input.nextLine();
-				for (int i = 0; i < 50; ++i) System.out.println();
-			}
-			else if(choice.equals("1"))
-			{
-				System.out.println(readfile("Jrepl.java"));
-				System.out.println("######*END OF QUINE*#####");
-				input.nextLine();
-				for (int i = 0; i < 50; ++i) System.out.println();
 
-			}
-			else
-			{
-				repl();
-			}
-		}
+		System.out.println(header);
+		System.out.println("\tRun -about to learn more about this project");
+		System.out.println("\tRun -help for a list of JRepl specific commands and example usage");
+
+		repl();
+		
 	}
 	
 	public static void repl() throws Exception
@@ -64,7 +41,6 @@ public class Jrepl
 		String functions="";
 		String classes="";
 		String imports="";
-		System.out.println(header);
 		while(true)
 		{
 			//prompt and getting input
@@ -286,6 +262,16 @@ public class Jrepl
 					}
 					p.waitFor();
 				}
+				else if(cmd.equals("about"))
+				{
+					System.out.println(readfile("about.txt"));
+					System.out.println("######*END OF ABOUT*#####");
+				}
+				else if(cmd.equals("quine"))
+				{
+					System.out.println(readfile("Jrepl.java"));
+					System.out.println("######*END OF QUINE*#####");
+				}
 				else
 				{
 					System.out.println("Unknown command! Please try again or enter -help.");
@@ -350,6 +336,7 @@ public class Jrepl
 		   			file = file.substring(0, file.length() - cmd.length());
 		   		}
 		  		System.out.println(readfile("results.txt"));
+		  		//System.out.println("Frozen here!");
 		   		/*if (!cmd.isEmpty()&&cmd.charAt(0)=='S')
 		   		{
 		   			file = file.substring(0, file.length() - cmd.length());
@@ -387,11 +374,15 @@ public class Jrepl
 	public static String noprint(String s)
 	{
 		while(s.indexOf("System.out.println(")>-1)
-	   		s = s.substring(0, s.indexOf("System.out.println("))+s.substring(s.indexOf(";", s.indexOf("System.out.println(")-1)+1, s.length());
+		{
+	   		s = /*s.substring(0, s.indexOf("System.out.println("))+*/s.substring(s.indexOf(";", s.indexOf("System.out.println(")-1)+1, s.length());
+	   		System.out.println(s);
+	   	}
 	   	while(s.indexOf("System.out.print(")>-1)
 	   		s = s.substring(0, s.indexOf("System.out.print("))+s.substring(s.indexOf(";", s.indexOf("System.out.print(")-1), s.length());
 		while(s.indexOf(".getLine()")>-1)
 	   		s = s.substring(0, s.indexOf(".getLine();"))+".gotLine();"+s.substring(s.indexOf("getLine();")+10, s.length());
+		
 		return s;
 	}
 	public static void compile() throws Exception
