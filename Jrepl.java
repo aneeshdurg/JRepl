@@ -49,7 +49,7 @@ public class Jrepl
 			cmd="";
 			cmd=input.nextLine();
 			System.out.println();
-
+			
 			//dealing with functions
 			functions=readfile("functions.java");
 			try{
@@ -60,7 +60,12 @@ public class Jrepl
 				pw = new PrintWriter("classes.java");
 				pw.close();
 			}
-			if(cmd.contains("::"))
+
+			if(cmd.isEmpty())
+			{
+				cmd="";
+			}
+			else if(cmd.contains("::"))
 			{
 				if(classes==null)
 				{
@@ -94,7 +99,6 @@ public class Jrepl
 
 				}	
 			}
-
 			else if(cmd.charAt(0)==':')
 			{
 
@@ -251,16 +255,25 @@ public class Jrepl
 				}
 				else if(cmd.equals("reset"))
 				{
-					Process p = null;
-					if (System.getProperty("os.name").startsWith("Windows"))
-					{
-						p = Runtime.getRuntime().exec("delfiles.bat /c start /wait");
-					}
-					else
-					{
-						p = Runtime.getRuntime().exec("sudo ./delfiles_unix.sh /wait");
-					}
-					p.waitFor();
+					file="public class Test{public static void main(String[] args)throws Exception{\n";
+					functions="";
+					classes="";
+					imports="";
+
+					bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
+					bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
+			   		bufferedWriter.newLine();
+			   		bufferedWriter.flush();
+
+			   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
+					bufferedWriter.write(functions);
+			   		bufferedWriter.newLine();
+			   		bufferedWriter.flush();
+	
+			   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
+					bufferedWriter.write(classes);
+			   		bufferedWriter.newLine();
+			   		bufferedWriter.flush();  
 				}
 				else if(cmd.equals("about"))
 				{
@@ -306,7 +319,8 @@ public class Jrepl
 					cmd+=input.nextLine();
 				}
 			}
-				file+=cmd;
+				if(!cmd.equals(""))
+					file+="\n\t"+cmd;
 				
 				//file=file.trim();
 				//System.out.println(file);

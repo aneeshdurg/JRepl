@@ -1,7 +1,7 @@
-del Test.java
-del Test.class
-del functions.java
-del classes.java
+del /F Test.java
+del /F Test.class
+del /F functions.java
+del /F classes.java
 
 copy Jrepl.class Jrepl
 copy InputTxt.class InputTxt
