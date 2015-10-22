@@ -12,7 +12,7 @@ public class InputTxt
    }
 	public String getLine() throws Exception
 	{
-		Process p=Runtime.getRuntime().exec("cmd /c start /wait input.bat "+id);
+		Process p=Runtime.getRuntime().exec("cmd /c start /wait sh input_unix.sh "+id);
 		p.waitFor();
 		input=readfile(id+".txt");
 		return input;
