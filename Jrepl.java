@@ -5,7 +5,7 @@ import java.io.*;
 public class Jrepl
 {
 	
-	static String header="\nJrepl v.1.4 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.5 - A read-eval-print-loop for java \n";
 	public static void main(String[] args) throws Exception
 	{
 		Process p = null;
@@ -41,6 +41,9 @@ public class Jrepl
 		String functions="";
 		String classes="";
 		String imports="";
+		String altfunction="";
+		String dontprintme="class Dontprintme{}";
+		LinkedList <String> functionlist= new LinkedList<>();
 		while(true)
 		{
 			//prompt and getting input
@@ -101,11 +104,13 @@ public class Jrepl
 			}
 			else if(cmd.charAt(0)==':')
 			{
-
-				if (functions==null)
+				if(functions==null)
 				{
 					functions="";
+					pw = new PrintWriter("functions.java");
+					pw.close();
 				}
+
 				if (cmd.indexOf("int ")==1||cmd.indexOf("char ")==1||cmd.indexOf("String ")==1||cmd.indexOf("double ")==1
 					||cmd.indexOf("float ")==1||cmd.indexOf("boolean ")==1) 
 				{
@@ -127,104 +132,97 @@ public class Jrepl
 					else
 					{
 						cmd=cmd.substring(1, cmd.length());
+						functionlist.add(cmd.substring(cmd.indexOf(" "), cmd.indexOf("(")+1));
+						cmd+=" ";
 						System.out.println("please define the function: ");
 						input=new Scanner(System.in);
 						cmd+=input.nextLine();
-						while((!cmd.contains(";")&&!cmd.equals(""))&&(cmd.contains("{")&&!cmd.contains("}"))&&(cmd.contains("(")&&!cmd.contains(")")))
+						while((!cmd.contains(";")&&!cmd.equals(""))||(left(cmd)!=right(cmd))||(cmd.contains("(")&&!cmd.contains(")")))
 						{
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
 						}
 					
-						functions+="public static "+cmd;
+						
 						bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-   						bufferedWriter.write(functions);
+   						if(cmd.indexOf("(")+1==cmd.indexOf(")"))
+						{
+							altfunction=noprint(cmd).substring(0, noprint(cmd).indexOf("(")+1)+"Dontprintme a"+
+								noprint(cmd).substring(noprint(cmd).indexOf(")"), noprint(cmd).length());
+						}
+						else
+						{
+							altfunction=noprint(cmd).substring(0, noprint(cmd).indexOf("(")+1)+"Dontprintme a, "+
+								noprint(cmd).substring(noprint(cmd).indexOf("(")+1, noprint(cmd).length());
+						}
+						
+   						functions+="public static "+cmd;
+   						altfunction="public static "+altfunction;
+   						bufferedWriter.write(functions+"\n"+altfunction);
    						bufferedWriter.newLine();
    						// flush
 				   		bufferedWriter.flush();
 				   		cmd="";
 					}
 				}
-				else if(functions!=null&&functions.contains(cmd.substring(1, cmd.indexOf("(")-1)))
-				{
-					System.out.println("Function already exists! Run it now?(y/n)");
-					input=new Scanner(System.in);
-					String choice=input.nextLine();
-					if (choice.charAt(0)=='y')
-					{
-						cmd=cmd.substring(1, cmd.length())+";";
-					}
-					else
-					{
-						cmd="";
-					}
-				}
 				else
 				{
-					if(functions.isEmpty())
+
+					if(functions.contains(cmd.substring(1, cmd.length())))
 					{
-						pw = new PrintWriter("functions.java");
-						pw.close();
-						System.out.println("Please enter a return type for the function: ");
-						input=new Scanner(System.in);
-						String type=input.nextLine();
-						
-						System.out.println("please define the function: ");
-						
-						cmd=cmd.substring(1, cmd.length());
-						while((!cmd.contains(";")&&!cmd.equals(""))||(cmd.contains("{")&&!cmd.contains("}"))||(cmd.contains("(")&&!cmd.contains(")")))
-							{
-								input=new Scanner(System.in);
-								cmd+=input.nextLine();
-							}
-						functions="public static "+type+" "+cmd;
-						bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-	   					bufferedWriter.write(functions);
-	   					bufferedWriter.newLine();
-	   					// flush
-				   		bufferedWriter.flush();
-				   		cmd="";
-					}
-					else
-					{
-						System.out.println("Specified function does not exist! Create it now?(y/n) ");
+						System.out.println("Function already exists! Run it now?(y/n)");
 						input=new Scanner(System.in);
 						String choice=input.nextLine();
 						if (choice.charAt(0)=='y')
 						{
 							cmd=cmd.substring(1, cmd.length());
-							System.out.println("Please enter a return type for the function: ");
-							input=new Scanner(System.in);
-							String type=input.nextLine();
-							System.out.println("Please define the function: ");
+						}
+						else
+						{
+							cmd="";
+						}
+					}
+					else
+					{
+						cmd=cmd.substring(1, cmd.length());
+						functionlist.add(cmd.substring(0, cmd.indexOf("(")+1));
+						System.out.println("Please enter a return type for the function: ");
+						input=new Scanner(System.in);
+						String type=input.nextLine();
+						
+						System.out.println("please define the function: ");
+						input=new Scanner(System.in);
+						cmd+=input.nextLine();
+						while((!cmd.contains(";")&&!cmd.equals(""))||(left(cmd)!=right(cmd))||(cmd.contains("(")&&!cmd.contains(")")))
+						{
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
-							while((!cmd.contains(";")&&!cmd.equals(""))&&(cmd.contains("{")&&!cmd.contains("}"))&&(cmd.contains("(")&&!cmd.contains(")")))
-							{
-								input=new Scanner(System.in);
-								cmd+=input.nextLine();
-							}
-						
 							
-							if(functions.isEmpty())
-								functions="public static "+type+" "+cmd;
-							else
-								functions+="public static "+type+" "+cmd+"\n";
-							bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-	   						bufferedWriter.write(functions);
-	   						bufferedWriter.newLine();
-	   						// flush
-					   		bufferedWriter.flush();
-					   		cmd="";
-	   						
-	   					}
-	   					else
-	   					{
-	   						cmd="";
-	   					}
-					}
-				}
+						}
 					
+						
+						bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
+
+						if(cmd.indexOf("(")+1==cmd.indexOf(")"))
+						{
+							altfunction=noprint(cmd).substring(0, noprint(cmd).indexOf("(")+1)+"Dontprintme a"+
+								noprint(cmd).substring(noprint(cmd).indexOf(")"), noprint(cmd).length());
+						}
+						else
+						{
+							altfunction=noprint(cmd).substring(0, noprint(cmd).indexOf("(")+1)+"Dontprintme a, "+
+								noprint(cmd).substring(noprint(cmd).indexOf("(")+1, noprint(cmd).length());
+						}
+						
+						functions+="public static "+type+" "+cmd;
+   						altfunction="public static "+type+" "+altfunction;
+   						bufferedWriter.write(functions+"\n"+altfunction);
+   						bufferedWriter.newLine();
+   						// flush
+				   		bufferedWriter.flush();
+				   		cmd="";
+					}
+				}		
 			}
 			else if(cmd.charAt(0)=='-')
 			{
@@ -259,6 +257,7 @@ public class Jrepl
 					functions="";
 					classes="";
 					imports="";
+					functionlist=new LinkedList<>();
 
 					bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
 					bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
@@ -294,11 +293,6 @@ public class Jrepl
 			}
 			else
 			{
-				/*if (cmd.contains("int ")||cmd.contains("char ")||cmd.contains("String ")||cmd.contains("double ")
-					||cmd.contains("float ")||cmd.contains("boolean "))
-				{
-
-				}*/
 				if((((cmd.contains("+")||cmd.contains("-")||cmd.contains("/")||cmd.contains("*")||cmd.contains("%"))&&!cmd.contains("="))
 					||(cmd.contains("==")||cmd.contains("||")||cmd.contains("&&")))&&!cmd.contains("System.out.print"))
 					{
@@ -330,7 +324,7 @@ public class Jrepl
 				functions=readfile("functions.java");
 				if (functions.equals(null))
 					functions=" ";
-		   		bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
+		   		bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
 				// write a new line
 		   		bufferedWriter.newLine();
 		   		// flush
@@ -366,8 +360,9 @@ public class Jrepl
 				pw.close();
 
 		   		file=noprint(file);
+		   		file=noprintf(file, functionlist);
 		   		
-		   		functions=noprint(functions);
+		   		//functions=noprint(functions);
 		   		
 		   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
 				bufferedWriter.write(functions);
@@ -376,7 +371,7 @@ public class Jrepl
 		   		// flush
 		   		bufferedWriter.flush();
 
-		   		classes=noprint(classes);	
+		   		//classes=noprint(classes);	
 		   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
 				bufferedWriter.write(classes);
 				// write a new line
@@ -393,6 +388,42 @@ public class Jrepl
 		while(s.indexOf(".getLine()")>-1)
 	   		s = s.substring(0, s.indexOf(".getLine();"))+".gotLine();"+s.substring(s.indexOf("getLine();")+10, s.length());
 		
+		return s;
+	}
+	public static String noprintf(String s, LinkedList<String> functionlist)
+	{
+		for(int i=0; i<functionlist.size(); i++)
+		{
+			int temp=1;
+			while(temp>0)
+			{
+				temp=s.indexOf(functionlist.get(i), temp+1);
+				if(s.contains(functionlist.get(i)))
+				{
+					if(s.indexOf("(", temp)+1==s.indexOf(")", temp))
+					{
+						if(!s.substring(s.indexOf("(", temp),s.indexOf(")", temp)).contains("Dontprintme"))
+						{
+							s = s.substring(0, s.indexOf("(", temp-1)+1)+"new Dontprintme()"+s.substring(s.indexOf(")", temp), s.length());	
+							
+						}
+						
+					}
+					else
+					{
+						if(temp==-1)
+						{
+							break;
+						}
+						if(!s.substring(s.indexOf("(", temp),s.indexOf(")", temp)).contains("Dontprintme"))
+						{
+							s = s.substring(0, s.indexOf("(", temp-1)+1)+"new Dontprintme(), "+s.substring(s.indexOf("(", temp-1)+1, s.length());
+						}	
+					
+					}
+				}
+			}
+		}
 		return s;
 	}
 	public static void compile() throws Exception
