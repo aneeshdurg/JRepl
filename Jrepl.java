@@ -5,7 +5,7 @@ import java.io.*;
 public class Jrepl
 {
 	
-	static String header="\nJrepl v.1.3 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.4 - A read-eval-print-loop for java \n";
 	public static void main(String[] args) throws Exception
 	{
 		Process p = null;
