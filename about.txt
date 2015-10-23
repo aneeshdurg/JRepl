@@ -33,7 +33,7 @@ Some instructions and notes.
 					     -boolean
 					     -String
 	---------------------------------------------------------------------------------------------------------------------------
-	If you make an error while typing in a command, don't worry about! JRepl will automatically rollback to before you entered 
+	If you make an error while typing in a command, don't worry about it! JRepl will automatically rollback to before you entered 
 	that command.
 	However, if you make a mistake while declaring a function or a class, there is currently no support to rollback, and hence,
 	the program must be restarted or you must manually edit or delete the files functions.java and classes.java.

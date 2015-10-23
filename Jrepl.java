@@ -235,7 +235,7 @@ public class Jrepl
 				}
 				else if(cmd.equals("buffer"))
 				{
-					System.out.println(readfile("Test.java"));
+					System.out.println(readfileclean("Test.java"));
 				}
 				else if(cmd.equals("version"))
 				{
@@ -486,6 +486,37 @@ public class Jrepl
    			else
    			{
    				result+=line+"\n";
+   			}
+   			
+   			
+ 
+   		}
+   		
+   		
+  		result+="";
+   		return result;
+	}
+	public static String readfileclean (String file) throws Exception
+	{
+		String result="";
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+		String line="";
+		int counter=0;
+		
+
+		while (line !=null)
+   		{
+   			
+   			
+   			line=bufferedReader.readLine();
+   			if(line==null)
+   			{
+   				result=result;
+   			}
+   			else
+   			{
+   				if(!line.contains("Dontprintme"))
+   					result+=line+"\n";
    			}
    			
    			
