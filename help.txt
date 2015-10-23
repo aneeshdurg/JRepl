@@ -36,6 +36,9 @@ Function declarations:
 		     -float
 		     -boolean
 		     -String
+	Leaving the type blank at the prompt will use the type
+	void by default. All functions are public static as of 
+	now. Only one line can be entered without {}.
 
 Creating a class:
 	::newClass

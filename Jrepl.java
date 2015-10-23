@@ -35,7 +35,7 @@ public class Jrepl
 		pw = new PrintWriter("functions.java");
 		pw.close();
 		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-		String file="public class Test{public static void main(String[] args)throws Exception{\n";
+		String file="public class Test{\npublic static void main(String[] args)throws Exception{\n";
 		Scanner input=new Scanner(System.in);
 		String cmd;
 		String functions="";
@@ -88,6 +88,7 @@ public class Jrepl
 						cmd="class "+cmd.substring(2, cmd.length())+"{";
 						while(left(cmd)!=right(cmd))
 						{
+							System.out.print(">> ");
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
 						}
@@ -111,6 +112,11 @@ public class Jrepl
 					pw.close();
 				}
 
+				if (!cmd.contains("("))
+				{
+					cmd+="()";
+				}
+
 				if (cmd.indexOf("int ")==1||cmd.indexOf("char ")==1||cmd.indexOf("String ")==1||cmd.indexOf("double ")==1
 					||cmd.indexOf("float ")==1||cmd.indexOf("boolean ")==1) 
 				{
@@ -120,6 +126,7 @@ public class Jrepl
 						System.out.println("Function already exists! Run it now?(y/n)");
 						input=new Scanner(System.in);
 						String choice=input.nextLine();
+						System.out.print(">> ");
 						if (choice.charAt(0)=='y')
 						{
 							cmd=cmd.substring(cmd.indexOf(" ")+1, cmd.length());
@@ -136,11 +143,18 @@ public class Jrepl
 						cmd+=" ";
 						System.out.println("please define the function: ");
 						input=new Scanner(System.in);
+						System.out.print(">> ");
 						cmd+=input.nextLine();
 						while((!cmd.contains(";")&&!cmd.equals(""))||(left(cmd)!=right(cmd))||(cmd.contains("(")&&!cmd.contains(")")))
 						{
+							System.out.print(">> ");
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
+						}
+						if(!cmd.contains("{"))
+						{
+							cmd=cmd.substring(0, cmd.indexOf(")")+1)+"{"+cmd.substring(cmd.indexOf(")")+1, cmd.length())+"}";
+
 						}
 					
 						
@@ -173,6 +187,7 @@ public class Jrepl
 						System.out.println("Function already exists! Run it now?(y/n)");
 						input=new Scanner(System.in);
 						String choice=input.nextLine();
+						System.out.print(">> ");
 						if (choice.charAt(0)=='y')
 						{
 							cmd=cmd.substring(1, cmd.length());
@@ -188,19 +203,28 @@ public class Jrepl
 						functionlist.add(cmd.substring(0, cmd.indexOf("(")+1));
 						System.out.println("Please enter a return type for the function: ");
 						input=new Scanner(System.in);
+						System.out.print(">> ");
 						String type=input.nextLine();
-						
+						if (type.isEmpty())
+						{
+							type="void";
+						}
 						System.out.println("please define the function: ");
 						input=new Scanner(System.in);
+						System.out.print(">> ");
 						cmd+=input.nextLine();
 						while((!cmd.contains(";")&&!cmd.equals(""))||(left(cmd)!=right(cmd))||(cmd.contains("(")&&!cmd.contains(")")))
 						{
+							System.out.print(">> ");
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
 							
 						}
 					
-						
+						if(!cmd.contains("{"))
+						{
+							cmd=cmd.substring(0, cmd.indexOf(")")+1)+"{"+cmd.substring(cmd.indexOf(")")+1, cmd.length())+"}";
+						}
 						bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
 
 						if(cmd.indexOf("(")+1==cmd.indexOf(")"))
@@ -289,7 +313,6 @@ public class Jrepl
 					System.out.println("Unknown command! Please try again or enter -help.");
 				}
 				cmd="";
-
 			}
 			else
 			{
@@ -309,8 +332,14 @@ public class Jrepl
 				}
 				while((!cmd.contains(";")&&!cmd.equals(""))||cmd.contains("){")&&!cmd.contains("}")||cmd.contains("(")&&!cmd.contains(")"))
 				{
+					System.out.print(">> ");
 					input=new Scanner(System.in);
 					cmd+=input.nextLine();
+					/*if*/System.out.println(cmd.charAt(cmd.length()-1));
+					/*{
+						input=new Scanner(System.in);
+						cmd+=input.nextLine();
+					}*/
 				}
 			}
 				if(!cmd.equals(""))
@@ -501,13 +530,18 @@ public class Jrepl
 		String result="";
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 		String line="";
+		String spaces="";
 		int counter=0;
 		
 
 		while (line !=null)
    		{
    			
-   			
+   			spaces="";
+   			for(int i=0; i<=left(result)-right(result); i++)
+   			{
+   				spaces+="\t";
+   			}
    			line=bufferedReader.readLine();
    			if(line==null)
    			{
@@ -516,7 +550,7 @@ public class Jrepl
    			else
    			{
    				if(!line.contains("Dontprintme"))
-   					result+=line+"\n";
+   					result+=spaces+line+"\n";
    			}
    			
    			
