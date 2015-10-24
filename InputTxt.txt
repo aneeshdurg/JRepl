@@ -7,12 +7,18 @@ How to use InputTxt:
 
 	3)Capturing input: 	
 		String a=<object name>.getLine();
-		This can also be accessed by view the text files created in 
+			or
+		int a=<object name>.getInt();
+			or
+		char a=<object name>.getChar();
+		This can also be accessed by viewing the text files created in 
 		the JRepl directory. Each instance of InputTxt is given a 
 		unique Id.
 
 	Always create a new object for each time you want to get input. This is 
-	to avoid a String reading newer input which may not be what you inteded.  
+	to avoid a String reading newer input which may not be what you inteded.
+	If you do want to reuse an object to get input, do not mix getLine/
+	getChar and getInt with the same object.  
 
 	Note that InputTxt is a very barebones class for getting input and is
 	not intended to be a major part of JRepl. It is only included for the 

@@ -5,7 +5,7 @@ import java.io.*;
 public class Jrepl
 {
 	
-	static String header="\nJrepl v.1.5 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.6 - A read-eval-print-loop for java \n";
 	public static void main(String[] args) throws Exception
 	{
 		Process p = null;
@@ -416,6 +416,10 @@ public class Jrepl
 	   	
 		while(s.indexOf(".getLine()")>-1)
 	   		s = s.substring(0, s.indexOf(".getLine();"))+".gotLine();"+s.substring(s.indexOf("getLine();")+10, s.length());
+	   	while(s.indexOf(".getInt()")>-1)
+	   		s = s.substring(0, s.indexOf(".getInt();"))+".gotInt();"+s.substring(s.indexOf("getInt();")+9, s.length());
+	   	while(s.indexOf(".getChar()")>-1)
+	   		s = s.substring(0, s.indexOf(".getChar();"))+".gotChar();"+s.substring(s.indexOf("getChar();")+10, s.length());
 		
 		return s;
 	}
