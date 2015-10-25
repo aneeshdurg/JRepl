@@ -1,12 +1,14 @@
 import java.util.*;
 import java.io.*;
 import java.nio.file.Paths;
-
+import utils.CleanDir;
+import utils.InputTxt;
 
 public class Jrepl
 {
 	
-	static String header="\nJrepl v.1.7 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.8 - A read-eval-print-loop for java \n";
+	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 	public static void main(String[] args) throws Exception
 	{
 		CleanDir cleaner=new CleanDir();
@@ -29,8 +31,10 @@ public class Jrepl
 		pw.close();
 		pw = new PrintWriter("results.txt");
 		pw.close();
+		pw = new PrintWriter("compileerrs.txt");
+		pw.close();
 		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-		String file="public class Test{\npublic static void main(String[] args)throws Exception{\n";
+		String file="import utils.CleanDir;\nimport utils.InputTxt;\npublic class Test{\npublic static void main(String[] args)throws Exception{\n";
 		Scanner input=new Scanner(System.in);
 		String cmd;
 		String functions="";
@@ -264,15 +268,15 @@ public class Jrepl
 				else if(cmd.equals("help"))
 				{
 					System.out.println(header);
-					System.out.println(readfile("help.txt"));
+					System.out.println(readfile(path+"/docs/help.txt"));
 				}
 				else if(cmd.equals("InputTxt"))
 				{
-					System.out.println(readfile("InputTxt.txt"));
+					System.out.println(readfile(path+"/docs/InputTxt.txt"));
 				}
 				else if(cmd.equals("reset"))
 				{
-					file="public class Test{public static void main(String[] args)throws Exception{\n";
+					file="import utils.CleanDir;\nimport utils.InputTxt;\npublic class Test{\npublic static void main(String[] args)throws Exception{\n";
 					functions="";
 					classes="";
 					imports="";
@@ -295,7 +299,7 @@ public class Jrepl
 				}
 				else if(cmd.equals("about"))
 				{
-					System.out.println(readfile("about.txt"));
+					System.out.println(readfile(path+"/docs/about.txt"));
 					System.out.println("######*END OF ABOUT*#####");
 				}
 				else if(cmd.equals("quine"))
@@ -359,7 +363,18 @@ public class Jrepl
 			if(!cmd.equals(""))
 			{
 			   	compile();
-		   		String errors=readfile("compileerrs.txt");
+			   	String errors="";
+			   	try
+			   	{
+			   		errors=readfile("compileerrs.txt");
+			   	}
+			   	catch (Exception e)
+			   	{
+			   		pw = new PrintWriter("compileerrs.txt");
+			   		pw.close();
+			   		errors="";
+			   	}
+		   		
 		   		if (errors.length()<=0)
 		   		{
 		   			System.out.println("No errors!");
