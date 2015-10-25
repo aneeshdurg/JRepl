@@ -1,23 +1,16 @@
 import java.util.*;
 import java.io.*;
+import java.nio.file.Paths;
 
 
 public class Jrepl
 {
 	
-	static String header="\nJrepl v.1.6 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.7 - A read-eval-print-loop for java \n";
 	public static void main(String[] args) throws Exception
 	{
-		Process p = null;
-		if (System.getProperty("os.name").startsWith("Windows"))
-		{
-			p = Runtime.getRuntime().exec("delfiles.bat /c start /wait");
-		}
-		else
-		{
-			p = Runtime.getRuntime().exec("sh delfiles_unix.sh /wait");
-		}
-		p.waitFor();
+		CleanDir cleaner=new CleanDir();
+		cleaner.run();	
 
 		System.out.println(header);
 		System.out.println("\tRun -about to learn more about this project");
@@ -33,6 +26,8 @@ public class Jrepl
 		PrintWriter pw = new PrintWriter("Test.java");
 		pw.close();
 		pw = new PrintWriter("functions.java");
+		pw.close();
+		pw = new PrintWriter("results.txt");
 		pw.close();
 		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
 		String file="public class Test{\npublic static void main(String[] args)throws Exception{\n";
@@ -328,6 +323,9 @@ public class Jrepl
 					
 				if(cmd.equals("exit"))
 				{
+					bufferedWriter.close();
+					CleanDir cleaner=new CleanDir();
+					cleaner.run();
 					System.exit(0);
 				}
 				while((!cmd.contains(";")&&!cmd.equals(""))||cmd.contains("){")&&!cmd.contains("}")||cmd.contains("(")&&!cmd.contains(")"))
@@ -372,7 +370,16 @@ public class Jrepl
 		   			
 		   			file = file.substring(0, file.length() - cmd.length());
 		   		}
-		  		System.out.println(readfile("results.txt"));
+		   		try
+		   		{
+		  			System.out.println(readfile("results.txt"));
+		  		}
+		  		catch (Exception e)
+		  		{
+		  			pw = new PrintWriter("results.txt");
+		  			pw.close();
+		  		}
+
 		  		//System.out.println("Frozen here!");
 		   		/*if (!cmd.isEmpty()&&cmd.charAt(0)=='S')
 		   		{

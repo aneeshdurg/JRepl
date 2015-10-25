@@ -67,5 +67,13 @@ Getting user input:
 	class would cause the program to freeze. As a result a very basic batch
 	application has been integrated which can be called from the InputTxt class.
 	Enter -InputTxt or open the file InputTxt.txt for more information.
-	
+
+Clearning directory:
+	-reset should reset the environment, however, if this fails, the class 
+	CleanDir is provided to delete all non-Jrepl files. We do not reccomend
+	using this class over -reset and is included for internal operations.
+	Syntax:
+		CleanDir <name> = new CleanDir();
+		<name>.run();
+
 ***ALL OTHER COMMANDS ARE STANDARD JAVA SYNTAX***
