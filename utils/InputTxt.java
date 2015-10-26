@@ -1,14 +1,17 @@
 package utils;
 
 import java.io.*;
+import java.nio.file.Paths;
 
 public class InputTxt
 {
+   static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 	private String input="";
    private static int id=0;
    private int name=0;
    public InputTxt()
    {
+      //System.out.println(path);
       name=id;
       id++;
    }
@@ -18,17 +21,17 @@ public class InputTxt
 
       if (System.getProperty("os.name").startsWith("Windows"))
       {
-         p=Runtime.getRuntime().exec("cmd /c start /wait input.bat "+id);
+         p=Runtime.getRuntime().exec("cmd /c start /wait scripts\\input.bat "+name);
          p.waitFor();
       }
       else
       {
-         p=Runtime.getRuntime().exec("cmd /c start /wait sh input_unix.sh "+id);
+         p=Runtime.getRuntime().exec("cmd /c start /wait sh scripts/input_unix.sh "+name);
          p.waitFor();
       }
 		
 		
-		input=readfile(id+".txt");
+		//input=readfile(name+".txt");
 		return input;
 	}
    public int getInt() throws Exception
@@ -83,13 +86,13 @@ public class InputTxt
 
    public String gotLine() throws Exception
    {
-	   input=readfile(id+".txt");
+	   input=readfile(name+".txt");
 
       return input;
    }
    public int gotInt() throws Exception
    {
-      input=readfile(id+".txt");
+      input=readfile(name+".txt");
       input=input.trim();
       int num=0;
       try
@@ -105,7 +108,7 @@ public class InputTxt
    }
    public char gotChar() throws Exception
    {
-      input=readfile(id+".txt");
+      input=readfile(name+".txt");
       return input.charAt(0);
    }
 }

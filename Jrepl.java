@@ -487,11 +487,11 @@ public class Jrepl
 		Process p = null;
 		if (System.getProperty("os.name").startsWith("Windows"))
 		{
-			p = Runtime.getRuntime().exec("compile.bat /c start /wait");
+			p = Runtime.getRuntime().exec(path+"/scripts/compile.bat /c start /wait");
 		}
 		else
 		{
-			p = Runtime.getRuntime().exec("sh compile_unix.sh /wait");
+			p = Runtime.getRuntime().exec("sh "+path+"/scripts/compile_unix.sh /wait");
 		}
 		p.waitFor();
 		System.out.println("");
