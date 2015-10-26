@@ -16,10 +16,10 @@ public class CleanDir
 			if(fList[i].getName().endsWith(".class")&&!fList[i].getName().equals("Jrepl.class")&&!fList[i].getName().equals("InputTxt.class")
 				&&!fList[i].getName().equals("CleanDir.class"))
 				fList[i].delete();
-			if(fList[i].getName().endsWith(".txt")&&!fList[i].getName().equals("about.txt")&&!fList[i].getName().equals("compileerrs.txt")
-				&&!fList[i].getName().equals("InputTxt.txt")&&!fList[i].getName().equals("help.txt"))
+			if(fList[i].getName().endsWith(".txt")&&!fList[i].getName().equals("about.txt")&&!fList[i].getName().equals("InputTxt.txt")
+				&&!fList[i].getName().equals("help.txt"))
 				fList[i].delete();
-			if(fList[i].getName().equals("Test.java")||fList[i].getName().equals("functions.java")||fList[i].getName().equals("classes.java"))
+			if(fList[i].getName().endsWith(".java")&&!fList[i].getName().equals("Jrepl.java"))
 				fList[i].delete();
 		}
 	}

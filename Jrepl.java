@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	
-	static String header="\nJrepl v.1.8 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.9 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 	public static void main(String[] args) throws Exception
 	{
@@ -24,7 +24,7 @@ public class Jrepl
 	
 	public static void repl() throws Exception
 	{
-		
+		//create all files, initialize some strings and LinkedList to hold function names
 		PrintWriter pw = new PrintWriter("Test.java");
 		pw.close();
 		pw = new PrintWriter("functions.java");
@@ -43,6 +43,8 @@ public class Jrepl
 		String altfunction="";
 		String dontprintme="class Dontprintme{}";
 		LinkedList <String> functionlist= new LinkedList<>();
+
+		//main loop
 		while(true)
 		{
 			//prompt and getting input
@@ -52,9 +54,20 @@ public class Jrepl
 			cmd=input.nextLine();
 			System.out.println();
 			
-			//dealing with functions
-			functions=readfile("functions.java");
-			try{
+			//Storing functions in a string
+			try
+			{
+				functions=readfile("functions.java");
+			}
+			catch (Exception e)
+			{
+				pw = new PrintWriter("functions.java");
+				pw.close();
+			}
+
+			//Storing classes in a string
+			try
+			{
 				classes=readfile("classes.java");
 			}
 			catch (Exception e)
@@ -63,11 +76,14 @@ public class Jrepl
 				pw.close();
 			}
 
+			//ensuring that the program doesn't break if user hits enter without typing
 			if(cmd.isEmpty())
 			{
 				cmd="";
 			}
-			else if(cmd.contains("::"))
+
+			//checks for class declaration
+			else if(cmd.startsWith("::"))
 			{
 				if(classes==null)
 				{
@@ -95,13 +111,14 @@ public class Jrepl
 						bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
    						bufferedWriter.write(classes);
    						bufferedWriter.newLine();
-   						// flush
-				   		bufferedWriter.flush();
+   						bufferedWriter.flush();
 				   		cmd="";
 					}
 
 				}	
 			}
+
+			//checks for function declaration
 			else if(cmd.charAt(0)==':')
 			{
 				if(functions==null)
@@ -173,8 +190,7 @@ public class Jrepl
    						altfunction="public static "+altfunction;
    						bufferedWriter.write(functions+"\n"+altfunction);
    						bufferedWriter.newLine();
-   						// flush
-				   		bufferedWriter.flush();
+   						bufferedWriter.flush();
 				   		cmd="";
 					}
 				}
@@ -241,12 +257,13 @@ public class Jrepl
    						altfunction="public static "+type+" "+altfunction;
    						bufferedWriter.write(functions+"\n"+altfunction);
    						bufferedWriter.newLine();
-   						// flush
-				   		bufferedWriter.flush();
+   						bufferedWriter.flush();
 				   		cmd="";
 					}
 				}		
 			}
+
+			//checks for Jrepl command
 			else if(cmd.charAt(0)=='-')
 			{
 				cmd=cmd.substring(1, cmd.length());
@@ -270,10 +287,12 @@ public class Jrepl
 					System.out.println(header);
 					System.out.println(readfile(path+"/docs/help.txt"));
 				}
+				
 				else if(cmd.equals("InputTxt"))
 				{
 					System.out.println(readfile(path+"/docs/InputTxt.txt"));
 				}
+				
 				else if(cmd.equals("reset"))
 				{
 					file="import utils.CleanDir;\nimport utils.InputTxt;\npublic class Test{\npublic static void main(String[] args)throws Exception{\n";
@@ -295,7 +314,10 @@ public class Jrepl
 			   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
 					bufferedWriter.write(classes);
 			   		bufferedWriter.newLine();
-			   		bufferedWriter.flush();  
+			   		bufferedWriter.flush();
+			   		
+			   		pw = new PrintWriter("results.txt");
+			   		pw.close();
 				}
 				else if(cmd.equals("about"))
 				{
@@ -313,8 +335,11 @@ public class Jrepl
 				}
 				cmd="";
 			}
+			
+			//Handling normal input
 			else
 			{
+				//prints the output of logical or mathematical statements
 				if((((cmd.contains("+")||cmd.contains("-")||cmd.contains("/")||cmd.contains("*")||cmd.contains("%"))&&!cmd.contains("="))
 					||(cmd.contains("==")||cmd.contains("||")||cmd.contains("&&")))&&!cmd.contains("System.out.print"))
 					{
@@ -324,7 +349,7 @@ public class Jrepl
 						}
 						cmd="System.out.println("+cmd+");";
 					}
-					
+				//Exits program, not placed under Jrepl commands as I didn't want to prefix exit. 	
 				if(cmd.equals("exit"))
 				{
 					bufferedWriter.close();
@@ -332,37 +357,41 @@ public class Jrepl
 					cleaner.run();
 					System.exit(0);
 				}
+				
+				//Waits for a valid statement
 				while((!cmd.contains(";")&&!cmd.equals(""))||cmd.contains("){")&&!cmd.contains("}")||cmd.contains("(")&&!cmd.contains(")"))
 				{
 					System.out.print(">> ");
 					input=new Scanner(System.in);
 					cmd+=input.nextLine();
-					/*if*/System.out.println(cmd.charAt(cmd.length()-1));
-					/*{
-						input=new Scanner(System.in);
-						cmd+=input.nextLine();
-					}*/
 				}
 			}
-				if(!cmd.equals(""))
-					file+="\n\t"+cmd;
-				
-				//file=file.trim();
-				//System.out.println(file);
-				pw = new PrintWriter("Test.java");
-				pw.close();
-				bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-				functions=readfile("functions.java");
-				if (functions.equals(null))
-					functions=" ";
-		   		bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
-				// write a new line
-		   		bufferedWriter.newLine();
-		   		// flush
-		   		bufferedWriter.flush();
+
+			//only appends to file if there is a normal command
+			if(!cmd.equals(""))
+				file+="\n\t"+cmd;
+			
+			//ensures that Test.java always exists
+			pw = new PrintWriter("Test.java");
+			pw.close();
+			
+			bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
+			
+			//ensures that functions is updated and not null
+			functions=readfile("functions.java");
+			if (functions.equals(null))
+				functions=" ";
+		   	
+		   	//writes everything to Test.java
+		   	bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
+			bufferedWriter.newLine();
+		   	bufferedWriter.flush();
+			
 			if(!cmd.equals(""))
 			{
 			   	compile();
+
+			   	//reading errors
 			   	String errors="";
 			   	try
 			   	{
@@ -382,9 +411,11 @@ public class Jrepl
 		  		else
 		   		{
 		   			System.out.println(errors);
-		   			
+		   			//removes command that caused the error
 		   			file = file.substring(0, file.length() - cmd.length());
 		   		}
+
+		   		//reading output
 		   		try
 		   		{
 		  			System.out.println(readfile("results.txt"));
@@ -395,42 +426,38 @@ public class Jrepl
 		  			pw.close();
 		  		}
 
-		  		//System.out.println("Frozen here!");
-		   		/*if (!cmd.isEmpty()&&cmd.charAt(0)=='S')
-		   		{
-		   			file = file.substring(0, file.length() - cmd.length());
-		   		}*/
+		  		
 	   		}
 	   		else
 	   		{
 	   			System.out.println("\n[Done processing!]\n");
-	   		} 		
+	   		} 	
+
+	   		//resets some files	
 		   		pw = new PrintWriter("functions.java");
 				pw.close();
 				pw = new PrintWriter("classes.java");
 				pw.close();
 
+			//removes print statements and other unwanted statements
 		   		file=noprint(file);
 		   		file=noprintf(file, functionlist);
 		   		
-		   		//functions=noprint(functions);
-		   		
+		   	//updates functions.java	
 		   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
 				bufferedWriter.write(functions);
-				// write a new line
-		   		bufferedWriter.newLine();
-		   		// flush
+				bufferedWriter.newLine();
 		   		bufferedWriter.flush();
 
-		   		//classes=noprint(classes);	
+		   	//updates classes.java	
 		   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
 				bufferedWriter.write(classes);
-				// write a new line
-		   		bufferedWriter.newLine();
-		   		// flush
+				bufferedWriter.newLine();
 		   		bufferedWriter.flush();  
 		}
 	}
+
+	//prevents print statements from being executed multiple times and from getLine methods from being called multiple times.
 	public static String noprint(String s)
 	{
 		while(s.indexOf("System.out.print")>-1)
@@ -445,6 +472,8 @@ public class Jrepl
 		
 		return s;
 	}
+
+	//prevents print statements in a function from being executed multiple times need to fix getLine methods being called multiple times.
 	public static String noprintf(String s, LinkedList<String> functionlist)
 	{
 		for(int i=0; i<functionlist.size(); i++)
@@ -481,6 +510,8 @@ public class Jrepl
 		}
 		return s;
 	}
+
+	//compiles Test.java by calling compile.bat or compile_unix.sh in /scripts/
 	public static void compile() throws Exception
 	{
 		System.out.println("[processing......]");
@@ -497,6 +528,8 @@ public class Jrepl
 		System.out.println("");
 		System.out.println("[Done processing!]");
 	}
+
+	//counts the number of {
 	public static int left(String s)
 	{
 		int counter = 0;
@@ -509,6 +542,8 @@ public class Jrepl
 		}
 		return counter;
 	}
+
+	//counts the number of }
 	public static int right(String s)
 	{
 		int counter = 0;
@@ -521,6 +556,8 @@ public class Jrepl
 		}
 		return counter;
 	}
+
+	//reads a file
 	public static String readfile (String file) throws Exception
 	{
 		String result="";
@@ -551,6 +588,8 @@ public class Jrepl
   		result+="";
    		return result;
 	}
+
+	//reads a file removing lines with  "Dontprintme" which are created by Jrepl 
 	public static String readfileclean (String file) throws Exception
 	{
 		String result="";
