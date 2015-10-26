@@ -23,32 +23,28 @@ What and How?
 	aspects of writing a quick test program in Java by creating and compiling temporary files for you.
 	
 Some instructions and notes.
+	
+	JRepl requires java 1.7 or above. You can check your java version by running:
+			java -version
+	from the command line.
+	-------------------------------------------------------------------------------------------------------
+	To view a list of commands and their usage, as well as a brief over view of Jrepl specific syntax, 
+	start Jrepl and use the command 
+			-help		
+	-------------------------------------------------------------------------------------------------------	
+	JRepl can be launched on windows with Jrepl.bat or by running java Jrepl from the command line.
+	If you edit Jrepl.java, you can compile and run by using:
 
-	To create a new function use the following syntax:
-		:[functionName]()
-	If functionName has already been created, you will be prompted to run the function instead.
-	Alternatively, the syntax
-		:<type> [functionName]() 
-	can be used to create a function of type <type>. If syntax 1 is used, the user will have to enter
-	a type while defining the function. 
-	Please note that through syntax 2 not all types are supported! 
-	Only the following typed functions can be created:
-		*int
-		*char
-		*double
-		*float
-		*boolean
-		*String
-	While defining the function, only enter the content between and including the {} in a function
-	definition
+			javac Jrepl.java
+			java Jrepl
+		or
+			jrepl -update
+		or 
+			jrepl -updateo
+			(if you only want to compile and not run)
+		
 	-------------------------------------------------------------------------------------------------------
-	To create a new class use the following syntax:
-		::[className]
-	If className has already been created, a message stating so will appear. 
-	While defining the class, only enter the content between the {} in a class definition, including the 
-	closing brace, ommiting the opening one
-	-------------------------------------------------------------------------------------------------------
-	If you make an error while typing in a command, don't worry about! JRepl will automatically rollback 
+	If you make an error while typing in a command, don't worry about it! JRepl will automatically rollback 
 	to before you entered that command.
 	However, if you make a mistake while declaring a function or a class, there is currently no support to
 	rollback, and hence, the program must be restarted.
