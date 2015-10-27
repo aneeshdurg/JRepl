@@ -6,9 +6,11 @@ import utils.InputTxt;
 
 public class Jrepl
 {
-	
+	//some useful Strings
 	static String header="\nJrepl v.1.9 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
+
+	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
 	public static void main(String[] args) throws Exception
 	{
 		CleanDir cleaner=new CleanDir();
@@ -19,9 +21,9 @@ public class Jrepl
 		System.out.println("\tRun -help for a list of JRepl specific commands and example usage");
 
 		repl();
-		
 	}
 	
+	//the REPL
 	public static void repl() throws Exception
 	{
 		//create all files, initialize some strings and LinkedList to hold function names
@@ -103,11 +105,13 @@ public class Jrepl
 						cmd="class "+cmd.substring(2, cmd.length())+"{";
 						while(left(cmd)!=right(cmd))
 						{
-							System.out.print(">> ");
+							layeredprompt(cmd);
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
 						}
+
 						classes+=cmd;
+						
 						bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
    						bufferedWriter.write(classes);
    						bufferedWriter.newLine();
@@ -163,7 +167,7 @@ public class Jrepl
 						cmd+=input.nextLine();
 						while((!cmd.contains(";")&&!cmd.equals(""))||(left(cmd)!=right(cmd))||(cmd.contains("(")&&!cmd.contains(")")))
 						{
-							System.out.print(">> ");
+							layeredprompt(cmd);
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
 						}
@@ -230,7 +234,7 @@ public class Jrepl
 						cmd+=input.nextLine();
 						while((!cmd.contains(";")&&!cmd.equals(""))||(left(cmd)!=right(cmd))||(cmd.contains("(")&&!cmd.contains(")")))
 						{
-							System.out.print(">> ");
+							layeredprompt(cmd);
 							input=new Scanner(System.in);
 							cmd+=input.nextLine();
 							
@@ -359,9 +363,13 @@ public class Jrepl
 				}
 				
 				//Waits for a valid statement
-				while((!cmd.contains(";")&&!cmd.equals(""))||cmd.contains("){")&&!cmd.contains("}")||cmd.contains("(")&&!cmd.contains(")"))
+				while((!cmd.contains(";")&&!cmd.equals(""))||cmd.contains("){")&&(left(cmd)!=right(cmd))||cmd.contains("(")&&!cmd.contains(")"))
 				{
-					System.out.print(">> ");
+					for (int i=0; i<=left(cmd)-right(cmd); i++)
+					{
+						System.out.print(">");
+					}
+					System.out.print(" ");
 					input=new Scanner(System.in);
 					cmd+=input.nextLine();
 				}
@@ -529,6 +537,16 @@ public class Jrepl
 		System.out.println("[Done processing!]");
 	}
 
+	//prints n >s where n=difference between no of { and no of }
+	public static void layeredprompt(String cmd)
+	{
+		for (int i=0; i<=left(cmd)-right(cmd); i++)
+		{
+			System.out.print(">");
+		}
+		System.out.print(" ");
+	}
+
 	//counts the number of {
 	public static int left(String s)
 	{
@@ -542,7 +560,6 @@ public class Jrepl
 		}
 		return counter;
 	}
-
 	//counts the number of }
 	public static int right(String s)
 	{
