@@ -423,17 +423,16 @@ public class Jrepl
 		   			System.out.println(errors);
 		   			//removes command that caused the error
 		   			file = file.substring(0, file.length() - cmd.length());
-		   			if(cmd.contains("(")&&cmd.contains(")"))
-		   			{
+		   			
 		   				for (int i=0; i<functionlist.size(); i++)
 		   				{
-		   					if (functionlist.get(i).contains(cmd.substring(0, cmd.indexOf("("))))
+		   					if (errors.contains(" "+functionlist.get(i)))
 		   					{
-		   						System.out.println("Deleting function "+cmd.substring(0, cmd.indexOf("("))+"!");
-		   						functions=functions.substring(0, functions.indexOf(cmd.substring(0, cmd.indexOf("("))))+
-		   							functions.substring(functions.indexOf("}", functions.indexOf(cmd.substring(0, cmd.indexOf("("))))+1, functions.length());
+		   						System.out.println("Deleting function "+functionlist.get(i).substring(0, functionlist.get(i).length()-1)+"!");
+		   						functions=functions.substring(0, functions.indexOf(functionlist.get(i)))+
+		   							functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());
 		   						functions=functions.substring(0, functions.indexOf(functionlist.get(i)+"Dontprintme"))+
-		   							functions.substring(functions.indexOf("}", functions.indexOf(cmd.substring(0, cmd.indexOf("("))))+1, functions.length());		
+		   							functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());		
 
 		   								//updates functions.java	
 							   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
@@ -453,7 +452,7 @@ public class Jrepl
 							   		bufferedWriter.flush();
 		   					}
 		   				}
-		   			}
+		   			
 		   		}
 
 		   		//reading output
