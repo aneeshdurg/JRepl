@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.1.10 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.2.0 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -421,20 +421,25 @@ public class Jrepl
 		  		else
 		   		{
 		   			System.out.println(errors);
-		   			//removes command that caused the error
-		   			file = file.substring(0, file.length() - cmd.length());
+		   			//removes command that caused the error, if the most recent command caused the error
+		   			if(errors.contains(cmd))
+		   				file = file.substring(0, file.length() - cmd.length());
 		   			
-		   				for (int i=0; i<functionlist.size(); i++)
-		   				{
-		   					if (errors.contains(" "+functionlist.get(i)))
-		   					{
-		   						System.out.println("Deleting function "+functionlist.get(i).substring(0, functionlist.get(i).length()-1)+"!");
-		   						functions=functions.substring(0, functions.indexOf(functionlist.get(i)))+
-		   							functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());
-		   						functions=functions.substring(0, functions.indexOf(functionlist.get(i)+"Dontprintme"))+
-		   							functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());		
-
-		   								//updates functions.java	
+		   			else
+		   			{
+						for (int i=0; i<functionlist.size(); i++)
+			   			{
+			   				if (errors.contains(" "+functionlist.get(i)))
+			   				{
+			   						//removes the funtion that caused the error
+			   					System.out.println("Deleting function "+functionlist.get(i).substring(0, functionlist.get(i).length()-1)+"!");
+			   					
+			   					functions=functions.substring(0, functions.indexOf(functionlist.get(i)))+
+			   						functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());
+			   					functions=functions.substring(0, functions.indexOf(functionlist.get(i)+"Dontprintme"))+
+			   						functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());		
+			   								
+			   								//updates functions.java	
 							   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
 									bufferedWriter.write(functions);
 									bufferedWriter.newLine();
@@ -446,13 +451,22 @@ public class Jrepl
 									bufferedWriter.newLine();
 							   		bufferedWriter.flush();
 
+										//updates Test.java
 		   							bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
 									bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
-							   		bufferedWriter.newLine();
-							   		bufferedWriter.flush();
-		   					}
-		   				}
-		   			
+						   			bufferedWriter.newLine();
+						   			bufferedWriter.flush();
+	   						}
+	   					}
+	   				}
+
+	   				//compiles the file again, just to find out if the most recent command caused the error.
+	   				compile();
+	   				errors=readfile("compileerrs.txt");
+		   				//removes command that caused the error, if the most recent command caused the error
+		   			if(errors.contains(cmd))
+		   				file = file.substring(0, file.length() - cmd.length());
+	   			
 		   		}
 
 		   		//reading output
@@ -606,6 +620,10 @@ public class Jrepl
 		return counter;
 	}
 
+	//Below are three readfiles methods, one for just reading a file, one for 
+	//skipping lines containing Dontprintme and one for cleaning
+	//functions upon deletion	
+	
 	//reads a file
 	public static String readfile (String file) throws Exception
 	{
@@ -647,10 +665,8 @@ public class Jrepl
 		String spaces="";
 		int counter=0;
 		
-
 		while (line !=null)
    		{
-   			
    			spaces="";
    			for(int i=0; i<=left(result)-right(result); i++)
    			{
@@ -663,19 +679,17 @@ public class Jrepl
    			}
    			else
    			{
+   				//skips lines that contain Dontprintme
    				if(!line.contains("Dontprintme"))
    					result+=spaces+line+"\n";
    			}
-   			
-   			
- 
    		}
-   		
-   		
+   	
   		result+="";
    		return result;
 	}
 
+	//removes some extra text left behind when functions are deleted.
 	public static String functioncleaner (String file) throws Exception
 	{
 		String result="";
@@ -684,10 +698,8 @@ public class Jrepl
 		String spaces="";
 		int counter=0;
 		
-
 		while (line !=null)
    		{
-   			
    			spaces="";
    			for(int i=0; i<=left(result)-right(result); i++)
    			{
@@ -700,16 +712,13 @@ public class Jrepl
    			}
    			else
    			{
+   				//skips line if it is not inside the function
    				if(!line.contains("(")&&(((result.lastIndexOf("{")<result.lastIndexOf("}"))&&result.lastIndexOf("}")!=-1)||result.lastIndexOf("{")==-1))
    					result=result;
    				else	
    					result+=spaces+line+"\n";
    			}
-   			
-   			
- 
    		}
-   		
    		
   		result+="";
    		return result;
