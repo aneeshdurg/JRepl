@@ -54,12 +54,10 @@ Some instructions and notes.
 	-------------------------------------------------------------------------------------------------------
 	Some features that I want to implement in the future:
 		*A faster compiling system
-		*Cleaner syntax for class and function definitions
 		*View command history
 		*Better system for handling variables
 		*Option to save work to file
-		*Support for non-windows platforms
-		*Error deletion for functions and classes
+		*Error deletion for classes
 Author: Aneesh Durg
 	
 >v1.0 made at BoilerMake2015

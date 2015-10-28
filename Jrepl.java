@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.1.9 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.1.10 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -45,6 +45,7 @@ public class Jrepl
 		String altfunction="";
 		String dontprintme="class Dontprintme{}";
 		LinkedList <String> functionlist= new LinkedList<>();
+		LinkedList <String> classlist= new LinkedList<>();
 
 		//main loop
 		while(true)
@@ -102,6 +103,7 @@ public class Jrepl
 					else
 					{
 						System.out.println("Please define the class: ");
+						classlist.add(cmd.substring(2, cmd.length()));
 						cmd="class "+cmd.substring(2, cmd.length())+"{";
 						while(left(cmd)!=right(cmd))
 						{
@@ -421,6 +423,37 @@ public class Jrepl
 		   			System.out.println(errors);
 		   			//removes command that caused the error
 		   			file = file.substring(0, file.length() - cmd.length());
+		   			if(cmd.contains("(")&&cmd.contains(")"))
+		   			{
+		   				for (int i=0; i<functionlist.size(); i++)
+		   				{
+		   					if (functionlist.get(i).contains(cmd.substring(0, cmd.indexOf("("))))
+		   					{
+		   						System.out.println("Deleting function "+cmd.substring(0, cmd.indexOf("("))+"!");
+		   						functions=functions.substring(0, functions.indexOf(cmd.substring(0, cmd.indexOf("("))))+
+		   							functions.substring(functions.indexOf("}", functions.indexOf(cmd.substring(0, cmd.indexOf("("))))+1, functions.length());
+		   						functions=functions.substring(0, functions.indexOf(functionlist.get(i)+"Dontprintme"))+
+		   							functions.substring(functions.indexOf("}", functions.indexOf(cmd.substring(0, cmd.indexOf("("))))+1, functions.length());		
+
+		   								//updates functions.java	
+							   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
+									bufferedWriter.write(functions);
+									bufferedWriter.newLine();
+							   		bufferedWriter.flush();
+		   								//cleans up the file and updates again
+		   							functions=functioncleaner("functions.java");
+		   							bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
+									bufferedWriter.write(functions);
+									bufferedWriter.newLine();
+							   		bufferedWriter.flush();
+
+		   							bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
+									bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
+							   		bufferedWriter.newLine();
+							   		bufferedWriter.flush();
+		   					}
+		   				}
+		   			}
 		   		}
 
 		   		//reading output
@@ -632,6 +665,45 @@ public class Jrepl
    			else
    			{
    				if(!line.contains("Dontprintme"))
+   					result+=spaces+line+"\n";
+   			}
+   			
+   			
+ 
+   		}
+   		
+   		
+  		result+="";
+   		return result;
+	}
+
+	public static String functioncleaner (String file) throws Exception
+	{
+		String result="";
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+		String line="";
+		String spaces="";
+		int counter=0;
+		
+
+		while (line !=null)
+   		{
+   			
+   			spaces="";
+   			for(int i=0; i<=left(result)-right(result); i++)
+   			{
+   				spaces+="\t";
+   			}
+   			line=bufferedReader.readLine();
+   			if(line==null)
+   			{
+   				result=result;
+   			}
+   			else
+   			{
+   				if(!line.contains("(")&&(((result.lastIndexOf("{")<result.lastIndexOf("}"))&&result.lastIndexOf("}")!=-1)||result.lastIndexOf("{")==-1))
+   					result=result;
+   				else	
    					result+=spaces+line+"\n";
    			}
    			
