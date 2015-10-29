@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.2.0 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.2.1 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -43,9 +43,12 @@ public class Jrepl
 		String classes="";
 		String imports="";
 		String altfunction="";
+		String altclass="";
+		String temp="";
 		String dontprintme="class Dontprintme{}";
 		LinkedList <String> functionlist= new LinkedList<>();
 		LinkedList <String> classlist= new LinkedList<>();
+		LinkedList <String> classnames= new LinkedList<>();
 
 		//main loop
 		while(true)
@@ -104,20 +107,32 @@ public class Jrepl
 					{
 						System.out.println("Please define the class: ");
 						classlist.add(cmd.substring(2, cmd.length()));
+						
+						altclass=cmd.substring(2, cmd.length())+"Dontprintme";
+
 						cmd="class "+cmd.substring(2, cmd.length())+"{";
+						
+						altclass="class "+altclass+"{";
+
 						while(left(cmd)!=right(cmd))
 						{
 							layeredprompt(cmd);
 							input=new Scanner(System.in);
-							cmd+=input.nextLine();
+							temp=input.nextLine();
+							cmd+=temp;
+							altclass+=temp;
 						}
 
-						classes+=cmd;
+						altclass=noprint(altclass);
+						classes+=cmd+"\n"+altclass;
 						
 						bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
    						bufferedWriter.write(classes);
    						bufferedWriter.newLine();
    						bufferedWriter.flush();
+
+						
+				   		
 				   		cmd="";
 					}
 
@@ -496,7 +511,23 @@ public class Jrepl
 			//removes print statements and other unwanted statements
 		   		file=noprint(file);
 		   		file=noprintf(file, functionlist);
+		   		file+="\n\t"+altclasscall(cmd, classlist);
 		   		
+		   		classnames=altclassnames("Test.java", classlist);
+		   		
+		   		for(int i=0; i<classnames.size(); i++)
+		   		{
+		   			if (file.contains(classnames.get(i)+"."))
+		   			{
+		   				file=file.substring(0, file.indexOf(".", file.indexOf(classnames.get(i)+".")))+"Dontprintme"+file.substring(file.indexOf(".", file.indexOf(classnames.get(i)+".")), file.length());
+		   			}
+		   		}
+		   		
+		   		bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
+				bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
+				bufferedWriter.newLine();
+		   		bufferedWriter.flush();
+		   
 		   	//updates functions.java	
 		   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
 				bufferedWriter.write(functions);
@@ -722,5 +753,57 @@ public class Jrepl
    		
   		result+="";
    		return result;
+	}
+
+	public static String altclasscall (String line, LinkedList<String> classlist) throws Exception
+	{
+		String result="";
+		if(line==null)
+   		{
+   			result=result;
+   		}
+   		else
+   		{
+   			for(int i=0; i<classlist.size(); i++)
+   			{
+   				if(line.contains(classlist.get(i))&&line.contains("new "+classlist.get(i)))
+   				{
+   					result+=line.substring(0, line.indexOf(classlist.get(i)))+classlist.get(i)+"Dontprintme "+line.substring(line.indexOf(" "), line.indexOf("=")).replaceAll("\\s+","")
+   					+"Dontprintme"+line.substring(line.indexOf(" ", line.indexOf(" ")+1), line.indexOf(" ", line.indexOf("new "+classlist.get(i)))+1)+classlist.get(i)+"Dontprintme"+"();"+"\n";		
+   				}
+   			}	
+   		}
+   		
+  		result+="";
+   		return result;
+	}
+	public static LinkedList<String> altclassnames (String file, LinkedList<String> classlist) throws Exception
+	{
+		String result="";
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+		String line="";
+		LinkedList <String> altclassname = new LinkedList<>(); 
+
+		while (line !=null)
+   		{
+   			line=bufferedReader.readLine();
+   			
+   			if(line!=null)
+   			{
+   				if(line.contains("new"))
+   				{
+   					for(int i=0; i<classlist.size(); i++)
+   					{
+		   				if(line.contains(classlist.get(i))&&!line.contains("Dontprintme"))
+		   				{
+		   					if(line.indexOf(" ")>-1&&line.indexOf("=")>-1)
+		   						altclassname.add(line.substring(line.indexOf(" "), line.indexOf("=")).replaceAll("\\s+",""));
+		   				}
+   					}
+   				}
+   			}
+   		}
+   		return altclassname;
+
 	}
 }
