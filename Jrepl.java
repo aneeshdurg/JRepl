@@ -106,13 +106,14 @@ public class Jrepl
 					else
 					{
 						System.out.println("Please define the class: ");
-						classlist.add(cmd.substring(2, cmd.length()));
-						
-						altclass=cmd.substring(2, cmd.length())+"Dontprintme";
 
+						//adds the class to a list to make it searchable
+						classlist.add(cmd.substring(2, cmd.length()));
 						cmd="class "+cmd.substring(2, cmd.length())+"{";
 						
-						altclass="class "+altclass+"{";
+						//creates a second class without print statements
+						altclass="class "+cmd.substring(2, cmd.length())+"Dontprintme{";
+
 
 						while(left(cmd)!=right(cmd))
 						{
@@ -511,10 +512,11 @@ public class Jrepl
 			//removes print statements and other unwanted statements
 		   		file=noprint(file);
 		   		file=noprintf(file, functionlist);
+		   		//adds a new object that calles the class without print statements
 		   		file+="\n\t"+altclasscall(cmd, classlist);
-		   		
+		   		//updates list of objects to make them searchable
 		   		classnames=altclassnames("Test.java", classlist);
-		   		
+		   		//scans file for objects to call the print-less ones instead.
 		   		for(int i=0; i<classnames.size(); i++)
 		   		{
 		   			if (file.contains(classnames.get(i)+"."))
@@ -755,6 +757,8 @@ public class Jrepl
    		return result;
 	}
 
+	//Dealing with classes
+	//creates a new object which calls the corresponding class without print statements
 	public static String altclasscall (String line, LinkedList<String> classlist) throws Exception
 	{
 		String result="";
@@ -777,6 +781,7 @@ public class Jrepl
   		result+="";
    		return result;
 	}
+	//finds names of objects and returns a list of them
 	public static LinkedList<String> altclassnames (String file, LinkedList<String> classlist) throws Exception
 	{
 		String result="";
