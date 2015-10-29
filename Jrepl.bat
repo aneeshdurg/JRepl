@@ -7,9 +7,11 @@ if %1==-updateo GOTO 0
 GOTO 2
 :0
 	javac Jrepl.java
+	pause
 	exit	
 :1
 	javac Jrepl.java
+	pause
 :2
 	java Jrepl
 

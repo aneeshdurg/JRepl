@@ -381,11 +381,22 @@ public class Jrepl
 				}
 				
 				//Waits for a valid statement
-				while((!cmd.contains(";")&&!cmd.equals(""))||cmd.contains("){")&&(left(cmd)!=right(cmd))||cmd.contains("(")&&!cmd.contains(")"))
+				while((!cmd.contains(";")&&!cmd.equals(""))||left(cmd)!=right(cmd)||cmd.contains("(")&&!cmd.contains(")"))
 				{
-					for (int i=0; i<=left(cmd)-right(cmd); i++)
+					layeredprompt(cmd);
+					if(left(cmd)==right(cmd)&&!cmd.isEmpty()&&!(cmd.contains("(")&&cmd.contains(")")))
 					{
-						System.out.print(">");
+						System.out.print(">>");
+					}
+					if(cmd.contains("(")&&cmd.contains(")")&&!cmd.contains("{")&&!cmd.contains(";"))
+					{
+						System.out.print("> ");
+						input=new Scanner(System.in);
+						cmd+=input.nextLine();
+						if(!cmd.contains("{"))
+						{
+							break;
+						}
 					}
 					System.out.print(" ");
 					input=new Scanner(System.in);
