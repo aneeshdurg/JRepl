@@ -396,7 +396,7 @@ public class Jrepl
 			//only appends to file if there is a normal command
 			if(!cmd.equals(""))
 				file+="\n\t"+cmd;
-			
+			file=file.trim();
 			//ensures that Test.java always exists
 			pw = new PrintWriter("Test.java");
 			pw.close();
@@ -439,7 +439,7 @@ public class Jrepl
 		   			System.out.println(errors);
 		   			//removes command that caused the error, if the most recent command caused the error
 		   			if(errors.contains(cmd))
-		   				file = file.substring(0, file.length() - cmd.length());
+		   				file = file.substring(0, file.length() - cmd.length()).trim();
 		   			
 		   			else
 		   			{
@@ -468,20 +468,23 @@ public class Jrepl
 							   		bufferedWriter.flush();
 
 										//updates Test.java
+							   		file=file.trim();
 		   							bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
 									bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
 						   			bufferedWriter.newLine();
 						   			bufferedWriter.flush();
+
+						   			//compiles the file again, just to find out if the most recent command caused the error.
+					   				compile();
+					   				errors=readfile("compileerrs.txt");
+						   				//removes command that caused the error, if the most recent command caused the error
+						   			if(errors.contains(cmd))
+						   				file = file.substring(0, file.length() - cmd.length());
 	   						}
 	   					}
 	   				}
 
-	   				//compiles the file again, just to find out if the most recent command caused the error.
-	   				compile();
-	   				errors=readfile("compileerrs.txt");
-		   				//removes command that caused the error, if the most recent command caused the error
-		   			if(errors.contains(cmd))
-		   				file = file.substring(0, file.length() - cmd.length());
+	   				
 	   			
 		   		}
 
@@ -510,8 +513,20 @@ public class Jrepl
 				pw.close();
 
 			//removes print statements and other unwanted statements
-		   		file=noprint(file);
-		   		file=noprintf(file, functionlist);
+		   		file=noprint(file).trim();
+		   		if(right(file)>left(file))
+		   		{
+		   			System.out.println("asdasdfasdff");
+		   			int difference=right(file)-left(file);
+		   			int index=0;
+		   			while(difference>0)
+		   			{
+		   				index=file.indexOf("}",index);
+		   				difference--;
+		   			}
+		   			file=file.substring(0, index-1)+file.substring(index, file.length());
+		   		}
+		   		file=noprintf(file, functionlist).trim();
 		   		//adds a new object that calles the class without print statements
 		   		file+="\n\t"+altclasscall(cmd, classlist);
 		   		//updates list of objects to make them searchable

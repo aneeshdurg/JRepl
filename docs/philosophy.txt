@@ -1,0 +1,28 @@
+The philosophy of Jrepl(some notes for developers):
+
+	Jrepl does not compile line by line, and is not supposed to. 
+	Variables, objects, etc..., should be useable for the entire session.
+	As such, Jrepl has several "hacks" to create the "illusion" of an REPL.
+	The following is a list of these "hacks" and the rationale behind them.
+
+	Dontprintme
+		Dontprintme is appended to all classes and inserted as an argument to some functions
+		in order to preserve the user's input while preventing print statements inside functions
+		and classes from executing multiple times. The user is never made aware of this class
+		and is strictly for internal use!
+
+	InputTxt
+		InputTxt is my workaround to being unable to use Scanners since the window in which the 
+		prompt would be displayed is supressed. It requires OS dependant scripts and must store the 
+		input to a text file. This class is provided for the user, but only provides base functionality,
+		which is more than enough for the purposes of this program.
+
+	CleanDir 
+		CleanDir is a class which allows me to clean the directory without being OS dependant. Currently,
+		CleanDir is somewhat problematic to work with, as it can't delete files which Java is writing to.
+		This class is not inteded to be used by the user, but has been documented in the event that the 
+		user feels like playing with files.
+
+	Above all, Jrepl should maintain the illusion that the compilation and execution of the program	is
+	happening on the main window. The average user should not be aware of the "hacks" behind it, and 
+	should focus on using it as a tool for productivity and rapid thinking.
