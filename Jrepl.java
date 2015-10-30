@@ -289,72 +289,95 @@ public class Jrepl
 			else if(cmd.charAt(0)=='-')
 			{
 				cmd=cmd.substring(1, cmd.length());
+				//allows the user to import packages
 				if (cmd.startsWith("import"))
 				{
 					if(!cmd.endsWith(";"))
 						cmd+=";";
 					imports+=cmd+"\n";
 				}
+
+				//displays the current commands in Test.java
 				else if(cmd.equals("buffer"))
 				{
 					System.out.println(readfileclean("Test.java"));
 				}
+
+				//displays Jrepl's header
 				else if(cmd.equals("version"))
 				{
 					System.out.println("\t"+header+"\n\t\t-Aneesh Durg");
 			   		
 				}
+
+				//displays help.txt
 				else if(cmd.equals("help"))
 				{
 					System.out.println(header);
 					System.out.println(readfile(path+"/docs/help.txt"));
 				}
 				
+				//displays InputTxt.txt
 				else if(cmd.equals("InputTxt"))
 				{
 					System.out.println(readfile(path+"/docs/InputTxt.txt"));
 				}
 				
+				//resets all files and local vars to initial state 
 				else if(cmd.equals("reset"))
-				{
+				{	
+						//reseting local variables
 					file="import utils.CleanDir;\nimport utils.InputTxt;\npublic class Test{\npublic static void main(String[] args)throws Exception{\n";
 					functions="";
+					altfunction="";
 					classes="";
+					altclass="";
 					imports="";
 					functionlist=new LinkedList<>();
+					classlist=new LinkedList<>();
+					classnames=new LinkedList<>();
 
+						//resets Test.java
 					bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
 					bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
 			   		bufferedWriter.newLine();
 			   		bufferedWriter.flush();
-
+			   			//resets functions.java
 			   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
 					bufferedWriter.write(functions);
 			   		bufferedWriter.newLine();
 			   		bufferedWriter.flush();
-	
+						//resets Classes.java
 			   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
 					bufferedWriter.write(classes);
 			   		bufferedWriter.newLine();
 			   		bufferedWriter.flush();
 			   		
+			   		//resets results.txt
 			   		pw = new PrintWriter("results.txt");
 			   		pw.close();
 				}
+
+				//displays about.txt
 				else if(cmd.equals("about"))
 				{
 					System.out.println(readfile(path+"/docs/about.txt"));
 					System.out.println("######*END OF ABOUT*#####");
 				}
+
+				//displays this file
 				else if(cmd.equals("quine"))
 				{
 					System.out.println(readfile("Jrepl.java"));
 					System.out.println("######*END OF QUINE*#####");
 				}
+
 				else
 				{
 					System.out.println("Unknown command! Please try again or enter -help.");
 				}
+				
+				//sets cmd to an empty string so that it isn't interpreted as a command to be written to a file
 				cmd="";
 			}
 			
@@ -383,37 +406,51 @@ public class Jrepl
 				//Waits for a valid statement
 				while((!cmd.contains(";")&&!cmd.equals(""))||left(cmd)!=right(cmd)||(cmd.contains("(")&&!cmd.contains(")")))
 				{
+					//prompt that changes with number of blocks opened
 					layeredprompt(cmd);
+
+					//accounts for layeredprompt not accounting for ( and )
 					if(left(cmd)==right(cmd)&&!cmd.isEmpty()&&!(cmd.contains("(")&&cmd.contains(")")))
 					{
 						System.out.print(">>");
 					}
+
+					//if the user enter a if/for/while/etc... statement and doesn't start the block on the same line
 					if(cmd.contains("(")&&cmd.contains(")")&&!cmd.contains("{")&&!cmd.contains(";"))
 					{
 						System.out.print("> ");
 						input=new Scanner(System.in);
 						cmd+=input.nextLine();
+						//breaks if there isn't anything to open the block, only 1 line statement
 						if(!cmd.contains("{"))
 						{
 							break;
 						}
 					}
+
+					//removes stray } if accidentally entered
 					if(right(cmd)>left(cmd))
 					{
 						System.out.println("\nRemoving stray '}'\n");
 						cmd=cmd.substring(0, cmd.lastIndexOf("}"))+cmd.substring(cmd.lastIndexOf("}")+1, cmd.length());
 						continue;
 					}
+
+					//if the user enter ";" and nothing else, break after setting cmd to ""
 					if(cmd.equals(";"))
 					{
 						cmd="";
 						break;
 					}
+
+					//a break accounting for the obscure case where a user enter someting in the form:
+					//	<something>(<something>){<something>} with no ";"
 					if(cmd.contains("(")&&cmd.contains(")")&&left(cmd)==right(cmd))
 					{
 						break;
 					}
-					System.out.print(" ");
+
+					//gets the next line of input
 					input=new Scanner(System.in);
 					cmd+=input.nextLine();
 				}
@@ -695,12 +732,11 @@ public class Jrepl
 		String line="";
 		int counter=0;
 		
-
 		while (line !=null)
    		{
-   			
-   			
+   			//gets the line
    			line=bufferedReader.readLine();
+   			//ensures no null lines
    			if(line==null)
    			{
    				result=result;
@@ -709,12 +745,8 @@ public class Jrepl
    			{
    				result+=line+"\n";
    			}
-   			
-   			
- 
    		}
-   		
-   		
+
   		result+="";
    		return result;
 	}
@@ -839,6 +871,5 @@ public class Jrepl
    			}
    		}
    		return altclassname;
-
 	}
 }
