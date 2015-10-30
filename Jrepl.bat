@@ -12,6 +12,7 @@ GOTO 2
 :1
 	javac Jrepl.java
 	pause
+	cls
 :2
 	java Jrepl
 

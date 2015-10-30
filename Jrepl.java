@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.2.1 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.2.2 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -381,7 +381,7 @@ public class Jrepl
 				}
 				
 				//Waits for a valid statement
-				while((!cmd.contains(";")&&!cmd.equals(""))||left(cmd)!=right(cmd)||cmd.contains("(")&&!cmd.contains(")"))
+				while((!cmd.contains(";")&&!cmd.equals(""))||left(cmd)!=right(cmd)||(cmd.contains("(")&&!cmd.contains(")")))
 				{
 					layeredprompt(cmd);
 					if(left(cmd)==right(cmd)&&!cmd.isEmpty()&&!(cmd.contains("(")&&cmd.contains(")")))
@@ -397,6 +397,21 @@ public class Jrepl
 						{
 							break;
 						}
+					}
+					if(right(cmd)>left(cmd))
+					{
+						System.out.println("\nRemoving stray '}'\n");
+						cmd=cmd.substring(0, cmd.lastIndexOf("}"))+cmd.substring(cmd.lastIndexOf("}")+1, cmd.length());
+						continue;
+					}
+					if(cmd.equals(";"))
+					{
+						cmd="";
+						break;
+					}
+					if(cmd.contains("(")&&cmd.contains(")")&&left(cmd)==right(cmd))
+					{
+						break;
 					}
 					System.out.print(" ");
 					input=new Scanner(System.in);
@@ -525,18 +540,7 @@ public class Jrepl
 
 			//removes print statements and other unwanted statements
 		   		file=noprint(file).trim();
-		   		if(right(file)>left(file))
-		   		{
-		   			System.out.println("asdasdfasdff");
-		   			int difference=right(file)-left(file);
-		   			int index=0;
-		   			while(difference>0)
-		   			{
-		   				index=file.indexOf("}",index);
-		   				difference--;
-		   			}
-		   			file=file.substring(0, index-1)+file.substring(index, file.length());
-		   		}
+		   		
 		   		file=noprintf(file, functionlist).trim();
 		   		//adds a new object that calles the class without print statements
 		   		file+="\n\t"+altclasscall(cmd, classlist);
