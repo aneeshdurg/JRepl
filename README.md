@@ -57,7 +57,6 @@ Some instructions and notes.
 		*View command history
 		*Better system for handling variables
 		*Option to save work to file
-		*Error deletion for classes
 Author: Aneesh Durg
 	
 >v1.0 made at BoilerMake2015

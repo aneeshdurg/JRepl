@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.2.2 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.2.3 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -36,6 +36,7 @@ public class Jrepl
 		pw = new PrintWriter("compileerrs.txt");
 		pw.close();
 		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
+
 		String file="import utils.CleanDir;\nimport utils.InputTxt;\npublic class Test{\npublic static void main(String[] args)throws Exception{\n";
 		Scanner input=new Scanner(System.in);
 		String cmd;
@@ -109,10 +110,10 @@ public class Jrepl
 
 						//adds the class to a list to make it searchable
 						classlist.add(cmd.substring(2, cmd.length()));
-						cmd="class "+cmd.substring(2, cmd.length())+"{";
-						
 						//creates a second class without print statements
 						altclass="class "+cmd.substring(2, cmd.length())+"Dontprintme{";
+						cmd="class "+cmd.substring(2, cmd.length())+"{";
+						
 
 
 						while(left(cmd)!=right(cmd))
@@ -121,11 +122,15 @@ public class Jrepl
 							input=new Scanner(System.in);
 							temp=input.nextLine();
 							cmd+=temp;
-							altclass+=temp;
+							if(temp.contains(" "+classlist.get(classlist.size()-1)))
+								altclass+=temp.substring(0, temp.indexOf(classlist.get(classlist.size()-1)))+classlist.get(classlist.size()-1)+"Dontprintme"
+									+temp.substring(temp.indexOf("("), temp.length());
+							else
+								altclass+=temp;			
 						}
 
 						altclass=noprint(altclass);
-						classes+=cmd+"\n"+altclass;
+						classes+=cmd+"\n"+altclass+"\n";
 						
 						bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
    						bufferedWriter.write(classes);
@@ -545,6 +550,39 @@ public class Jrepl
 						   				file = file.substring(0, file.length() - cmd.length());
 	   						}
 	   					}
+	   					for (int i=0; i<classlist.size(); i++)
+			   			{
+			   				if (errors.contains(" "+classlist.get(i)))
+			   				{
+			   						//removes the funtion that caused the error
+			   					System.out.println("Deleting class "+classlist.get(i)+"!");
+			   					
+			   					classes=classes.substring(0, classes.indexOf("class "+classlist.get(i)))+
+			   						classes.substring(classes.lastIndexOf("}", classes.indexOf("class ", classes.indexOf(classlist.get(i))))+1, classes.length());
+			   					classes=classes.substring(0, classes.indexOf("class "+classlist.get(i)+"Dontprintme"))+
+			   						classes.substring(classes.lastIndexOf("}", classes.indexOf("class ", classes.indexOf(classlist.get(i)))>-1?classes.indexOf("class ", classes.indexOf(classlist.get(i))):classes.length())+1, classes.length());		
+			   								
+			   								//updates functions.java	
+							   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
+									bufferedWriter.write(classes);
+									bufferedWriter.newLine();
+							   		bufferedWriter.flush();
+		   								
+										//updates Test.java
+							   		file=file.trim();
+		   							bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
+									bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
+						   			bufferedWriter.newLine();
+						   			bufferedWriter.flush();
+
+						   			//compiles the file again, just to find out if the most recent command caused the error.
+					   				compile();
+					   				errors=readfile("compileerrs.txt");
+						   				//removes command that caused the error, if the most recent command caused the error
+						   			if(errors.contains(cmd))
+						   				file = file.substring(0, file.length() - cmd.length());
+	   						}
+	   					}
 	   				}
 
 	   				
@@ -835,7 +873,7 @@ public class Jrepl
    				if(line.contains(classlist.get(i))&&line.contains("new "+classlist.get(i)))
    				{
    					result+=line.substring(0, line.indexOf(classlist.get(i)))+classlist.get(i)+"Dontprintme "+line.substring(line.indexOf(" "), line.indexOf("=")).replaceAll("\\s+","")
-   					+"Dontprintme"+line.substring(line.indexOf(" ", line.indexOf(" ")+1), line.indexOf(" ", line.indexOf("new "+classlist.get(i)))+1)+classlist.get(i)+"Dontprintme"+"();"+"\n";		
+   					+"Dontprintme = new "+classlist.get(i)+"Dontprintme"+line.substring(line.indexOf("("), line.indexOf(";")+1)+"\n";		
    				}
    			}	
    		}
