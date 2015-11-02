@@ -35,8 +35,7 @@ public class Jrepl
 		pw.close();
 		pw = new PrintWriter("compileerrs.txt");
 		pw.close();
-		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-
+		
 		String file="import utils.CleanDir;\nimport utils.InputTxt;\npublic class Test{\npublic static void main(String[] args)throws Exception{\n";
 		Scanner input=new Scanner(System.in);
 		String cmd;
@@ -132,12 +131,7 @@ public class Jrepl
 						altclass=noprint(altclass);
 						classes+=cmd+"\n"+altclass+"\n";
 						
-						bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
-   						bufferedWriter.write(classes);
-   						bufferedWriter.newLine();
-   						bufferedWriter.flush();
-
-						
+						write("classes.java", classes);				
 				   		
 				   		cmd="";
 					}
@@ -201,8 +195,7 @@ public class Jrepl
 						}
 					
 						
-						bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-   						if(cmd.indexOf("(")+1==cmd.indexOf(")"))
+						if(cmd.indexOf("(")+1==cmd.indexOf(")"))
 						{
 							altfunction=noprint(cmd).substring(0, noprint(cmd).indexOf("(")+1)+"Dontprintme a"+
 								noprint(cmd).substring(noprint(cmd).indexOf(")"), noprint(cmd).length());
@@ -215,10 +208,9 @@ public class Jrepl
 						
    						functions+="public static "+cmd;
    						altfunction="public static "+altfunction;
-   						bufferedWriter.write(functions+"\n"+altfunction);
-   						bufferedWriter.newLine();
-   						bufferedWriter.flush();
-				   		cmd="";
+
+   						write("functions.java", functions+"\n"+altfunction);
+   						cmd="";
 					}
 				}
 				else
@@ -267,8 +259,7 @@ public class Jrepl
 						{
 							cmd=cmd.substring(0, cmd.indexOf(")")+1)+"{"+cmd.substring(cmd.indexOf(")")+1, cmd.length())+"}";
 						}
-						bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-
+						
 						if(cmd.indexOf("(")+1==cmd.indexOf(")"))
 						{
 							altfunction=noprint(cmd).substring(0, noprint(cmd).indexOf("(")+1)+"Dontprintme a"+
@@ -282,10 +273,8 @@ public class Jrepl
 						
 						functions+="public static "+type+" "+cmd;
    						altfunction="public static "+type+" "+altfunction;
-   						bufferedWriter.write(functions+"\n"+altfunction);
-   						bufferedWriter.newLine();
-   						bufferedWriter.flush();
-				   		cmd="";
+   						write("functions.java", functions+"\n"+altfunction);
+   						cmd="";
 					}
 				}		
 			}
@@ -343,21 +332,13 @@ public class Jrepl
 					classnames=new LinkedList<>();
 
 						//resets Test.java
-					bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-					bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
-			   		bufferedWriter.newLine();
-			   		bufferedWriter.flush();
-			   			//resets functions.java
-			   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-					bufferedWriter.write(functions);
-			   		bufferedWriter.newLine();
-			   		bufferedWriter.flush();
-						//resets Classes.java
-			   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
-					bufferedWriter.write(classes);
-			   		bufferedWriter.newLine();
-			   		bufferedWriter.flush();
+					write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes);
 			   		
+			   			//resets functions.java
+			   		write("functions.java", functions);
+			   			//resets Classes.java
+			   		write("classes.java", classes);
+					
 			   		//resets results.txt
 			   		pw = new PrintWriter("results.txt");
 			   		pw.close();
@@ -402,7 +383,6 @@ public class Jrepl
 				//Exits program, not placed under Jrepl commands as I didn't want to prefix exit. 	
 				if(cmd.equals("exit"))
 				{
-					bufferedWriter.close();
 					CleanDir cleaner=new CleanDir();
 					cleaner.run();
 					System.exit(0);
@@ -463,13 +443,19 @@ public class Jrepl
 
 			//only appends to file if there is a normal command
 			if(!cmd.equals(""))
+			{
+				for(int i=0; i<classnames.size(); i++)
+				{
+					if((cmd.contains("print(")||cmd.contains("println("))&&cmd.contains(classnames.get(i)))
+						cmd=cmd.substring(0, cmd.indexOf(classnames.get(i)))+classnames.get(i)+"Dontprintme"+cmd.substring(cmd.indexOf(classnames.get(i))+classnames.get(i).length(), cmd.length());
+				}
 				file+="\n\t"+cmd;
+			}
 			file=file.trim();
 			//ensures that Test.java always exists
 			pw = new PrintWriter("Test.java");
 			pw.close();
 			
-			bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
 			
 			//ensures that functions is updated and not null
 			functions=readfile("functions.java");
@@ -477,12 +463,11 @@ public class Jrepl
 				functions=" ";
 		   	
 		   	//writes everything to Test.java
-		   	bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
-			bufferedWriter.newLine();
-		   	bufferedWriter.flush();
+			write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
 			
 			if(!cmd.equals(""))
 			{
+
 			   	compile();
 
 			   	//reading errors
@@ -509,107 +494,80 @@ public class Jrepl
 		   			if(errors.contains(cmd))
 		   				file = file.substring(0, file.length() - cmd.length()).trim();
 		   			
-		   			else
-		   			{
-						for (int i=0; i<functionlist.size(); i++)
+		   			for (int i=0; i<functionlist.size(); i++)
+			   		{
+			   			if (errors.contains(" "+functionlist.get(i)))
 			   			{
-			   				if (errors.contains(" "+functionlist.get(i)))
-			   				{
-			   						//removes the funtion that caused the error
-			   					System.out.println("Deleting function "+functionlist.get(i).substring(0, functionlist.get(i).length()-1)+"!");
-			   					
-			   					functions=functions.substring(0, functions.indexOf(functionlist.get(i)))+
-			   						functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());
-			   					functions=functions.substring(0, functions.indexOf(functionlist.get(i)+"Dontprintme"))+
-			   						functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());		
-			   								
-			   								//updates functions.java	
-							   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-									bufferedWriter.write(functions);
-									bufferedWriter.newLine();
-							   		bufferedWriter.flush();
-		   								//cleans up the file and updates again
-		   							functions=functioncleaner("functions.java");
-		   							bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-									bufferedWriter.write(functions);
-									bufferedWriter.newLine();
-							   		bufferedWriter.flush();
-
-										//updates Test.java
-							   		file=file.trim();
-		   							bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-									bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
-						   			bufferedWriter.newLine();
-						   			bufferedWriter.flush();
-
-						   			//compiles the file again, just to find out if the most recent command caused the error.
-					   				compile();
-					   				errors=readfile("compileerrs.txt");
-						   				//removes command that caused the error, if the most recent command caused the error
-						   			if(errors.contains(cmd))
-						   				file = file.substring(0, file.length() - cmd.length());
-	   						}
-	   					}
-	   					for (int i=0; i<classlist.size(); i++)
-			   			{
-			   				if (errors.contains(" "+classlist.get(i)))
-			   				{
-			   						//removes the funtion that caused the error
-			   					System.out.println("Deleting class "+classlist.get(i)+"!");
-			   					
-			   					classes=classes.substring(0, classes.indexOf("class "+classlist.get(i)))+
-			   						classes.substring(classes.lastIndexOf("}", classes.indexOf("class ", classes.indexOf(classlist.get(i))))+1, classes.length());
-			   					classes=classes.substring(0, classes.indexOf("class "+classlist.get(i)+"Dontprintme"))+
-			   						classes.substring(classes.lastIndexOf("}", classes.indexOf("class ", classes.indexOf(classlist.get(i)))>-1?classes.indexOf("class ", classes.indexOf(classlist.get(i))):classes.length())+1, classes.length());		
-			   								
-			   								//updates functions.java	
-							   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
-									bufferedWriter.write(classes);
-									bufferedWriter.newLine();
-							   		bufferedWriter.flush();
-		   								
-										//updates Test.java
-							   		file=file.trim();
-		   							bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-									bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes);
-						   			bufferedWriter.newLine();
-						   			bufferedWriter.flush();
-
-						   			//compiles the file again, just to find out if the most recent command caused the error.
-					   				compile();
-					   				errors=readfile("compileerrs.txt");
-						   				//removes command that caused the error, if the most recent command caused the error
-						   			if(errors.contains(cmd))
-						   				file = file.substring(0, file.length() - cmd.length());
-	   						}
+			   					//removes the funtion that caused the error
+			   				System.out.println("Deleting function "+functionlist.get(i).substring(0, functionlist.get(i).length()-1)+"!");
+			   				
+			   				functions=functions.substring(0, functions.indexOf(functionlist.get(i)))+
+			   					functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());
+			   				functions=functions.substring(0, functions.indexOf(functionlist.get(i)+"Dontprintme"))+
+			   					functions.substring(functions.indexOf("}", functions.indexOf(functionlist.get(i)))+1, functions.length());		
+			   							
+			   							//updates functions.java	
+						   		write("functions.java", functions);
+						   			//cleans up the file and updates again
+		   						functions=functioncleaner("functions.java");
+		   						write("functions.java", functions);
+		   								//updates Test.java
+						   		file=file.trim();
+		   						write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes);
+					   			//compiles the file again, just to find out if the most recent command caused the error.
+					  				compile();
+					  				errors=readfile("compileerrs.txt");
+					   				//removes command that caused the error, if the most recent command caused the error
+					   			if(errors.contains(cmd))
+					   				file = file.substring(0, file.length() - cmd.length());
 	   					}
 	   				}
-
-	   				
-	   			
-		   		}
-
+	   				for (int i=0; i<classlist.size(); i++)
+			   		{
+			   			if (errors.contains(" "+classlist.get(i)))
+			   			{
+			   					//removes the funtion that caused the error
+			   				System.out.println("Deleting class "+classlist.get(i)+"!");
+			   				
+			   				classes=classes.substring(0, classes.indexOf("class "+classlist.get(i)))+
+			   					classes.substring(classes.lastIndexOf("}", classes.indexOf("class ", classes.indexOf(classlist.get(i))))+1, classes.length());
+			   				classes=classes.substring(0, classes.indexOf("class "+classlist.get(i)+"Dontprintme"))+
+			   					classes.substring(classes.lastIndexOf("}", classes.indexOf("class ", classes.indexOf(classlist.get(i)))>-1?classes.indexOf("class ", classes.indexOf(classlist.get(i))):classes.length())+1, classes.length());		
+			   							
+			   							//updates functions.java	
+						   		write("classes.java", classes);
+									
+									//updates Test.java
+						   		file=file.trim();
+		   						write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes);
+					   				//compiles the file again, just to find out if the most recent command caused the error.
+				   				compile();
+				   				errors=readfile("compileerrs.txt");
+					   				//removes command that caused the error, if the most recent command caused the error
+					   			if(errors.contains(cmd))
+					   				file = file.substring(0, file.length() - cmd.length());
+   						}
+   					}			   				
+	   	   		}
 		   		//reading output
-		   		try
-		   		{
-		  			System.out.println(readfile("results.txt"));
-		  		}
-		  		catch (Exception e)
-		  		{
-		  			pw = new PrintWriter("results.txt");
-		  			pw.close();
-		  		}
-
-		  		
-	   		}
-	   		else
+	   		try
 	   		{
-	   			System.out.println("\n[Done processing!]\n");
-	   		} 	
-
+	  			System.out.println(readfile("results.txt"));
+	  		}
+	  		catch (Exception e)
+	  		{
+	  			pw = new PrintWriter("results.txt");
+	  			pw.close();
+	  		}
+		  		
+   		}
+   		else
+   		{
+   			System.out.println("\n[Done processing!]\n");
+   		} 	
 	   		//resets some files	
-		   		pw = new PrintWriter("functions.java");
-				pw.close();
+	   		pw = new PrintWriter("functions.java");
+			pw.close();
 				pw = new PrintWriter("classes.java");
 				pw.close();
 
@@ -617,7 +575,7 @@ public class Jrepl
 		   		file=noprint(file).trim();
 		   		
 		   		file=noprintf(file, functionlist).trim();
-		   		//adds a new object that calles the class without print statements
+		   		//adds a new object that calls the class without print statements
 		   		file+="\n\t"+altclasscall(cmd, classlist);
 		   		//updates list of objects to make them searchable
 		   		classnames=altclassnames("Test.java", classlist);
@@ -630,22 +588,14 @@ public class Jrepl
 		   			}
 		   		}
 		   		
-		   		bufferedWriter=new BufferedWriter(new FileWriter("Test.java"));
-				bufferedWriter.write(imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
-				bufferedWriter.newLine();
-		   		bufferedWriter.flush();
-		   
+		   		write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
+				
 		   	//updates functions.java	
-		   		bufferedWriter=new BufferedWriter(new FileWriter("functions.java"));
-				bufferedWriter.write(functions);
-				bufferedWriter.newLine();
-		   		bufferedWriter.flush();
-
+		   		write("functions.java", functions);
+				
 		   	//updates classes.java	
-		   		bufferedWriter=new BufferedWriter(new FileWriter("classes.java"));
-				bufferedWriter.write(classes);
-				bufferedWriter.newLine();
-		   		bufferedWriter.flush();  
+		   		write("classes.java", classes);
+				
 		}
 	}
 
@@ -758,6 +708,15 @@ public class Jrepl
 		return counter;
 	}
 
+	//Writes content to filename
+	public static void write(String filename, String content) throws Exception
+	{
+		BufferedWriter bufferedWriter=new BufferedWriter(new FileWriter(filename));
+		bufferedWriter.write(content);
+		bufferedWriter.newLine();
+		bufferedWriter.flush();
+		bufferedWriter.close();
+	}
 	//Below are three readfiles methods, one for just reading a file, one for 
 	//skipping lines containing Dontprintme and one for cleaning
 	//functions upon deletion	
