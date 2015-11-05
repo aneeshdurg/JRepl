@@ -56,7 +56,6 @@ Some instructions and notes.
 		*A faster compiling system
 		*View command history
 		*Better system for handling variables
-		*Option to save work to file
 Author: Aneesh Durg
 	
 >v1.0 made at BoilerMake2015
