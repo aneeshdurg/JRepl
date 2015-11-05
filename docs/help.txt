@@ -22,6 +22,9 @@ JRepl commands:
 	-InputTxt
 		Documentation for the InputTxt class. See 
 		"Getting user input" below for more details.
+	-SaveLoad
+		Instructions for saving and loading file in 
+		Jrepl.
 
 Function declarations:
 	:function()

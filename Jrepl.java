@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.2.3 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.2.6 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -122,12 +122,28 @@ public class Jrepl
 							temp=input.nextLine();
 							cmd+=temp;
 							if(temp.contains(" "+classlist.get(classlist.size()-1)))
+							{
+								
+								//creates the constructor for the altclass as well
 								altclass+=temp.substring(0, temp.indexOf(classlist.get(classlist.size()-1)))+classlist.get(classlist.size()-1)+"Dontprintme"
 									+temp.substring(temp.indexOf("("), temp.length());
+
+							}
 							else
 								altclass+=temp;			
 						}
-
+						
+						if(cmd.contains(classlist.get(classlist.size()-1)+"("))
+							//creates an alternate constructor with no print statements
+							cmd=cmd.substring(0, cmd.length()-1)
+							+cmd.substring((cmd.lastIndexOf("}", cmd.indexOf(classlist.get(classlist.size()-1)+"("))>-1?
+								cmd.lastIndexOf("}", cmd.indexOf(classlist.get(classlist.size()-1)+"(")):cmd.indexOf("{", cmd.indexOf("class "+classlist.get(classlist.size()-1))))+1, 
+									cmd.indexOf(classlist.get(classlist.size()-1)+"("))
+							+classlist.get(classlist.size()-1)+"("
+							+(cmd.indexOf(")", cmd.indexOf("(", cmd.indexOf(classlist.get(classlist.size()-1)+"(")))==cmd.indexOf("(", cmd.indexOf(classlist.get(classlist.size()-1)+"("))+1?
+											("Dontprintme a"+noprint(cmd.substring(cmd.indexOf("(", cmd.indexOf(classlist.get(classlist.size()-1)+"("))+1, cmd.indexOf("}", cmd.indexOf(classlist.get(classlist.size()-1)+"("))+1))):
+												("Dontprintme a, "+noprint(cmd.substring(cmd.indexOf("(", cmd.indexOf(classlist.get(classlist.size()-1)+"("))+1, cmd.indexOf("}", cmd.indexOf(classlist.get(classlist.size()-1)+"("))+1))))+"}";
+						
 						altclass=noprint(altclass);
 						classes+=cmd+"\n"+altclass+"\n";
 						
@@ -276,8 +292,9 @@ public class Jrepl
    						write("functions.java", functions+"\n"+altfunction);
    						cmd="";
 					}
-				}		
-			}
+				}
+			}		
+			
 
 			//checks for Jrepl command
 			else if(cmd.charAt(0)=='-')
@@ -342,6 +359,48 @@ public class Jrepl
 			   		//resets results.txt
 			   		pw = new PrintWriter("results.txt");
 			   		pw.close();
+				}
+
+				//loads a file
+				else if(cmd.startsWith("load"))
+				{
+					cmd=cmd.substring(5, cmd.length())+".jrepl";
+					File existance=new File(cmd);
+					if (existance.exists())
+					{
+						loader(cmd);
+						functions=readfile("functions.java");
+						classes=readfile("classes.java");
+					}
+					else
+					{
+						System.out.println("Could not find file!");
+					}
+				}
+
+				//saves a file
+				else if(cmd.startsWith("save"))
+				{
+					if(!cmd.trim().equals("save"))
+					{
+						cmd=cmd.substring(5, cmd.length())+".jrepl";	
+						
+						pw = new PrintWriter(cmd);
+						pw.close();
+
+						write(cmd, "//:functions\n"+functions+"\n//:classes\n"+classes);
+					
+					}
+					else
+					{
+						System.out.println("Please specify a filename!");
+					}
+				}
+
+				//displays saveload.txt
+				else if(cmd.equals("SaveLoad"))
+				{
+					System.out.println(readfile(path+"/docs/saveload.txt"));
 				}
 
 				//displays about.txt
@@ -526,7 +585,7 @@ public class Jrepl
 			   		{
 			   			if (errors.contains(" "+classlist.get(i)))
 			   			{
-			   					//removes the funtion that caused the error
+			   					//removes the class that caused the error
 			   				System.out.println("Deleting class "+classlist.get(i)+"!");
 			   				
 			   				classes=classes.substring(0, classes.indexOf("class "+classlist.get(i)))+
@@ -550,21 +609,20 @@ public class Jrepl
    					}			   				
 	   	   		}
 		   		//reading output
-	   		try
+	   			try
+	   			{
+	  				System.out.println(readfile("results.txt"));
+	  			}
+	  			catch (Exception e)
+	  			{
+	  				pw = new PrintWriter("results.txt");
+	  				pw.close();
+	  			}	
+   			}
+	   		else
 	   		{
-	  			System.out.println(readfile("results.txt"));
-	  		}
-	  		catch (Exception e)
-	  		{
-	  			pw = new PrintWriter("results.txt");
-	  			pw.close();
-	  		}
-		  		
-   		}
-   		else
-   		{
-   			System.out.println("\n[Done processing!]\n");
-   		} 	
+	   			System.out.println("\n[Done processing!]\n");
+	   		} 	
 	   		//resets some files	
 	   		pw = new PrintWriter("functions.java");
 			pw.close();
@@ -587,6 +645,17 @@ public class Jrepl
 		   				file=file.substring(0, file.indexOf(".", file.indexOf(classnames.get(i)+".")))+"Dontprintme"+file.substring(file.indexOf(".", file.indexOf(classnames.get(i)+".")), file.length());
 		   			}
 		   		}
+		   		//scans file for constructors to call the print-less ones instead
+		   		for(int i=0; i<classlist.size(); i++)
+		   		{
+		   			
+		   				if (file.lastIndexOf(classlist.get(i)+"(")!=file.lastIndexOf(classlist.get(i)+"(new Dontprintme()"))
+		   					file=file.substring(0, file.indexOf("(", file.lastIndexOf(classlist.get(i)+"("))+1)+"new Dontprintme()"+
+		   						(file.lastIndexOf(classlist.get(i)+"()")>-1?(file.substring(file.indexOf(")", file.lastIndexOf(classlist.get(i)+"(")), file.length())):
+		   							(" ,"+file.substring(file.indexOf("(", file.lastIndexOf(classlist.get(i)+"("))+1, file.length())));
+		   		}
+
+		   		
 		   		
 		   		write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
 				
@@ -595,7 +664,6 @@ public class Jrepl
 				
 		   	//updates classes.java	
 		   		write("classes.java", classes);
-				
 		}
 	}
 
@@ -781,6 +849,33 @@ public class Jrepl
    		return result;
 	}
 
+	//loads a file
+	public static void loader(String filename) throws Exception
+	{
+		String temp=readfile(filename);
+		String temp1;
+		if(temp.indexOf("//:functions")==-1&&temp.indexOf("//:classes")==-1)
+		{
+			System.out.println("Could not load file! Please mark functions and classes!");
+		}
+		else
+		{
+			if(temp.indexOf("//:functions")>-1)
+			{
+				temp1=temp.substring(temp.indexOf("//:functions")+"//:functions".length(), temp.indexOf("//:classes")>-1?temp.indexOf("//:classes"):temp.length());
+				write("functions.java", readfile("functions.java")+"\n//loaded content\n"+temp1+"\n//loaded content\n");
+				//functionlist.add(cmd.substring(cmd.indexOf(" "), cmd.indexOf("(")+1));
+			}
+			if(temp.indexOf("//:classes")>-1)
+			{
+				temp1=temp.substring(temp.indexOf("//:classes")+"//:classes".length(), temp.length());
+				
+				write("classes.java", readfile("classes.java")+"\n//loaded content\n"+temp1+"\n//loaded content\n");
+			}
+		}
+
+	}
+
 	//removes some extra text left behind when functions are deleted.
 	public static String functioncleaner (String file) throws Exception
 	{
@@ -831,8 +926,11 @@ public class Jrepl
    			{
    				if(line.contains(classlist.get(i))&&line.contains("new "+classlist.get(i)))
    				{
-   					result+=line.substring(0, line.indexOf(classlist.get(i)))+classlist.get(i)+"Dontprintme "+line.substring(line.indexOf(" "), line.indexOf("=")).replaceAll("\\s+","")
-   					+"Dontprintme = new "+classlist.get(i)+"Dontprintme"+line.substring(line.indexOf("("), line.indexOf(";")+1)+"\n";		
+   					if(line.contains(classlist.get(i)+" "))
+   						result+=line.substring(0, line.indexOf(classlist.get(i)))+classlist.get(i)+"Dontprintme "+line.substring(line.indexOf(" "), line.indexOf("=")).replaceAll("\\s+","")
+   						+"Dontprintme = new "+classlist.get(i)+"Dontprintme"+line.substring(line.indexOf("("), line.indexOf(";")+1)+"\n";		
+   					/*else if(line.contains(classlist.get(i)+"("))
+   						result+=line.substring(0, line.indexOf(classlist.get(i)))+classlist.get(i)+"Dontprintmeasdf"+line.substring(line.indexOf("("), line.indexOf(";")+1)+"\n";*/
    				}
    			}	
    		}
@@ -858,7 +956,7 @@ public class Jrepl
    				{
    					for(int i=0; i<classlist.size(); i++)
    					{
-		   				if(line.contains(classlist.get(i))&&!line.contains("Dontprintme"))
+		   				if(line.contains(classlist.get(i)+" ")&&!line.contains("Dontprintme"))
 		   				{
 		   					if(line.indexOf(" ")>-1&&line.indexOf("=")>-1)
 		   						altclassname.add(line.substring(line.indexOf(" "), line.indexOf("=")).replaceAll("\\s+",""));

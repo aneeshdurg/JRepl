@@ -1,0 +1,20 @@
+Saving and Loading files in Jrepl:
+	To save all current functions and Classes created in Jrepl, run the command:
+		-save <filename>
+	which will save your work to a file named <filename>.jrepl.
+
+	To load a file run the command:
+		-load <filename>
+	Note that the .jrepl is OMITTED here. This is to prevent users from loading
+	other types of files (like standard Java files).
+
+	Although one can create .jrepl in a text editor of his or her choice, I do
+	not reccomend doing so. However if you choose to do so, format the file with
+	the following template:
+		
+		//:functions
+		<Your functions>
+		//:classes
+		<Your classes>
+
+	So that Jrepl knows where to append the content of the file.	

@@ -1,2 +1,3 @@
 *On exit classes, function, Test.java left behind
-*Classes don't not print if print statement is in constructor
+*prompt is glitchy
+*Loaded files aren't added to functionlist and classlist/classname
