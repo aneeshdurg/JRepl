@@ -42,15 +42,19 @@ Some instructions and notes.
 		or 
 			jrepl -updateo
 			(if you only want to compile and not run)
-		
+			
+	Note that these commands must be run from the same directory that contains Jrepl. Editing Jrepl.bat
+	to use absolute paths and adding it to your PATH variable will allow you to launch Jrepl from anywhere.
 	-------------------------------------------------------------------------------------------------------
 	If you make an error while typing in a command, don't worry about it! JRepl will automatically rollback 
 	to before you entered that command.
-	However, if you make a mistake while declaring a function or a class, there is currently no support to
-	rollback, and hence, the program must be restarted.
 	Furthermore, all print statements will be deleted after they are run once, but operations, assignments
 	and other functions will persist within a session so that you can still use your variable across 
-	commands.
+	commands. To get rid of those statements, running the command:
+	
+		-reset
+	
+	will reset Jrepl.	
 	-------------------------------------------------------------------------------------------------------
 	Some features that I want to implement in the future:
 		*A faster compiling system
