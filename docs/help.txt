@@ -22,7 +22,7 @@ JRepl commands:
 	-InputTxt
 		Documentation for the InputTxt class. See 
 		"Getting user input" below for more details.
-	-SaveLoad
+	-saveload
 		Instructions for saving and loading file in 
 		Jrepl.
 
@@ -45,12 +45,10 @@ Function declarations:
 
 Creating a class:
 	::newClass
-
+	Note that the prompt that follows will be closed when you
+	enter a } not preceeded by a { to close the class.
 Importing a package:
 	-import <package name>
-
-Displaying current commands:
-	-buffer
 
 Evaluating expressions:
 	2+2
@@ -75,6 +73,8 @@ Clearning directory:
 	-reset should reset the environment, however, if this fails, the class 
 	CleanDir is provided to delete all non-Jrepl files. We do not reccomend
 	using this class over -reset and is included for internal operations.
+	Using it will not have much effect on the state of the program if 
+	-reset is not run as well.
 	Syntax:
 		CleanDir <name> = new CleanDir();
 		<name>.run();

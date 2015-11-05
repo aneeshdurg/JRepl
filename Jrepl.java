@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.2.6 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.2.7 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -44,11 +44,14 @@ public class Jrepl
 		String imports="";
 		String altfunction="";
 		String altclass="";
+		String loadedfunctions="";
+		String loadedclasses="";
 		String temp="";
 		String dontprintme="class Dontprintme{}";
 		LinkedList <String> functionlist= new LinkedList<>();
 		LinkedList <String> classlist= new LinkedList<>();
 		LinkedList <String> classnames= new LinkedList<>();
+		LinkedList <String> loadedfiles= new LinkedList<>();
 
 		//main loop
 		while(true)
@@ -344,12 +347,15 @@ public class Jrepl
 					classes="";
 					altclass="";
 					imports="";
+					loadedfunctions="";
+					loadedclasses="";
 					functionlist=new LinkedList<>();
 					classlist=new LinkedList<>();
 					classnames=new LinkedList<>();
+					loadedfiles=new LinkedList<>();
 
 						//resets Test.java
-					write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes);
+					write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 			   		
 			   			//resets functions.java
 			   		write("functions.java", functions);
@@ -365,12 +371,41 @@ public class Jrepl
 				else if(cmd.startsWith("load"))
 				{
 					cmd=cmd.substring(5, cmd.length())+".jrepl";
+					
+					//checks if file exists
 					File existance=new File(cmd);
 					if (existance.exists())
 					{
-						loader(cmd);
-						functions=readfile("functions.java");
-						classes=readfile("classes.java");
+						//ensures that file isn't already loaded
+						if(loadedfiles.contains(cmd))
+						{
+							System.out.println("File is already loaded! Unload it now?(y/n) ");
+							System.out.print(">");
+							input=new Scanner(System.in);
+							temp=input.nextLine();
+							temp=temp.toLowerCase();
+							if(temp.charAt(0)=='y')
+							{
+								loadedfunctions=loadedfunctions.substring(0, loadedfunctions.indexOf("//::"+cmd))+
+									(loadedfunctions.indexOf("//::", loadedfunctions.indexOf("//::"+cmd)+1)>-1?
+										loadedfunctions.substring(loadedfunctions.indexOf("//::", loadedfunctions.indexOf("//::"+cmd)+1), loadedfunctions.length()):"");
+
+								loadedclasses=loadedclasses.substring(0, loadedclasses.indexOf("//::"+cmd))+
+									(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1)>-1?
+										loadedclasses.substring(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1), loadedclasses.length()):"");	
+								loadedfiles.remove(cmd);	
+							}
+						}
+
+						//loads file 
+						else
+						{
+							loadedfiles.add(cmd);
+							loader(cmd);
+							loadedfunctions+=readfile("loadedfunctions.java");
+							loadedclasses+=readfile("loadedclasses.java");
+							write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
+						}
 					}
 					else
 					{
@@ -398,7 +433,7 @@ public class Jrepl
 				}
 
 				//displays saveload.txt
-				else if(cmd.equals("SaveLoad"))
+				else if(cmd.equals("saveload"))
 				{
 					System.out.println(readfile(path+"/docs/saveload.txt"));
 				}
@@ -522,7 +557,7 @@ public class Jrepl
 				functions=" ";
 		   	
 		   	//writes everything to Test.java
-			write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
+			write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 			
 			if(!cmd.equals(""))
 			{
@@ -572,7 +607,7 @@ public class Jrepl
 		   						write("functions.java", functions);
 		   								//updates Test.java
 						   		file=file.trim();
-		   						write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes);
+		   						write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 					   			//compiles the file again, just to find out if the most recent command caused the error.
 					  				compile();
 					  				errors=readfile("compileerrs.txt");
@@ -598,7 +633,7 @@ public class Jrepl
 									
 									//updates Test.java
 						   		file=file.trim();
-		   						write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes);
+		   						write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 					   				//compiles the file again, just to find out if the most recent command caused the error.
 				   				compile();
 				   				errors=readfile("compileerrs.txt");
@@ -657,7 +692,7 @@ public class Jrepl
 
 		   		
 		   		
-		   		write("Test.java", imports+file+"\n}\n"+functions+"\n}\n"+classes+dontprintme);
+		   		write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 				
 		   	//updates functions.java	
 		   		write("functions.java", functions);
@@ -863,14 +898,14 @@ public class Jrepl
 			if(temp.indexOf("//:functions")>-1)
 			{
 				temp1=temp.substring(temp.indexOf("//:functions")+"//:functions".length(), temp.indexOf("//:classes")>-1?temp.indexOf("//:classes"):temp.length());
-				write("functions.java", readfile("functions.java")+"\n//loaded content\n"+temp1+"\n//loaded content\n");
+				write("loadedfunctions.java", "//::"+filename+"\n//loaded content\n"+temp1.trim()+"\n//loaded content\n");
 				//functionlist.add(cmd.substring(cmd.indexOf(" "), cmd.indexOf("(")+1));
 			}
 			if(temp.indexOf("//:classes")>-1)
 			{
 				temp1=temp.substring(temp.indexOf("//:classes")+"//:classes".length(), temp.length());
 				
-				write("classes.java", readfile("classes.java")+"\n//loaded content\n"+temp1+"\n//loaded content\n");
+				write("loadedclasses.java", "//::"+filename+"\n//loaded content\n"+temp1.trim()+"\n//loaded content\n");
 			}
 		}
 

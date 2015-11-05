@@ -18,3 +18,7 @@ Saving and Loading files in Jrepl:
 		<Your classes>
 
 	So that Jrepl knows where to append the content of the file.	
+	To unload a loaded file, if it is causing problems, or if you've edited the file
+	and wish to reload it, run:
+		-load <filename>
+	again and you will be prompted to unload the file.
