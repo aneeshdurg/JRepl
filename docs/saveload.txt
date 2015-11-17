@@ -12,6 +12,8 @@ Saving and Loading files in Jrepl:
 	not reccomend doing so. However if you choose to do so, format the file with
 	the following template:
 		
+		//:imports
+		<import statements>
 		//:functions
 		<Your functions>
 		//:classes

@@ -1,4 +1,4 @@
-#########################################*JREPLv.2.7 - A READ-EVAL-PRINT-LOOP FOR JAVA*#########################################
+#########################################*JREPLv.2.8 - A READ-EVAL-PRINT-LOOP FOR JAVA*#########################################
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Why?
 	A read–eval–print loop (REPL), also known as an interactive toplevel or language shell, is a simple, interactive 
@@ -44,7 +44,6 @@ Some instructions and notes.
 		*A faster compiling system
 		*View command history
 		*Better system for handling variables
-		*Option to save work to file
 		*Error deletion for classes
 Author: Aneesh Durg
 	v1.0 made at BoilerMake2015

@@ -7,7 +7,7 @@ import utils.InputTxt;
 public class Jrepl
 {
 	//some useful Strings
-	static String header="\nJrepl v.2.7 - A read-eval-print-loop for java \n";
+	static String header="\nJrepl v.2.8 - A read-eval-print-loop for java \n";
 	static String path=Paths.get(".").toAbsolutePath().normalize().toString();
 
 	//main method, just cleans the directory, displays a "splash screen" and starts the actual repl
@@ -46,6 +46,7 @@ public class Jrepl
 		String altclass="";
 		String loadedfunctions="";
 		String loadedclasses="";
+		String loadedimports="";
 		String temp="";
 		String dontprintme="class Dontprintme{}";
 		LinkedList <String> functionlist= new LinkedList<>();
@@ -349,13 +350,14 @@ public class Jrepl
 					imports="";
 					loadedfunctions="";
 					loadedclasses="";
+					loadedimports="";
 					functionlist=new LinkedList<>();
 					classlist=new LinkedList<>();
 					classnames=new LinkedList<>();
 					loadedfiles=new LinkedList<>();
 
 						//resets Test.java
-					write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
+					write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 			   		
 			   			//resets functions.java
 			   		write("functions.java", functions);
@@ -393,6 +395,11 @@ public class Jrepl
 								loadedclasses=loadedclasses.substring(0, loadedclasses.indexOf("//::"+cmd))+
 									(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1)>-1?
 										loadedclasses.substring(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1), loadedclasses.length()):"");	
+								
+								loadedimports=loadedimports.substring(0, loadedimports.indexOf("//::"+cmd))+
+									(loadedimports.indexOf("//::", loadedimports.indexOf("//::"+cmd)+1)>-1?
+										loadedimports.substring(loadedimports.indexOf("//::", loadedimports.indexOf("//::"+cmd)+1), loadedimports.length()):"");	
+								
 								loadedfiles.remove(cmd);	
 							}
 						}
@@ -404,7 +411,8 @@ public class Jrepl
 							loader(cmd);
 							loadedfunctions+=readfile("loadedfunctions.java");
 							loadedclasses+=readfile("loadedclasses.java");
-							write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
+							loadedimports+=readfile("loadedimports.java");
+							write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 						}
 					}
 					else
@@ -557,7 +565,7 @@ public class Jrepl
 				functions=" ";
 		   	
 		   	//writes everything to Test.java
-			write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
+			write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 			
 			if(!cmd.equals(""))
 			{
@@ -576,10 +584,9 @@ public class Jrepl
 			   		pw.close();
 			   		errors="";
 			   	}
-		   		
 		   		if (errors.length()<=0)
 		   		{
-		   			System.out.println("No errors!");
+		   			System.out.println("No compile errors!");
 		   		}
 		  		else
 		   		{
@@ -607,7 +614,7 @@ public class Jrepl
 		   						write("functions.java", functions);
 		   								//updates Test.java
 						   		file=file.trim();
-		   						write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
+		   						write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 					   			//compiles the file again, just to find out if the most recent command caused the error.
 					  				compile();
 					  				errors=readfile("compileerrs.txt");
@@ -633,7 +640,7 @@ public class Jrepl
 									
 									//updates Test.java
 						   		file=file.trim();
-		   						write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
+		   						write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 					   				//compiles the file again, just to find out if the most recent command caused the error.
 				   				compile();
 				   				errors=readfile("compileerrs.txt");
@@ -647,6 +654,11 @@ public class Jrepl
 	   			try
 	   			{
 	  				System.out.println(readfile("results.txt"));
+		   			if (readfile("results.txt").contains("Exception in thread \"main\""))
+		   			{
+		   				file = file.substring(0, file.length() - cmd.length()).trim();	
+		   			}
+
 	  			}
 	  			catch (Exception e)
 	  			{
@@ -692,7 +704,7 @@ public class Jrepl
 
 		   		
 		   		
-		   		write("Test.java", imports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
+		   		write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 				
 		   	//updates functions.java	
 		   		write("functions.java", functions);
@@ -830,8 +842,6 @@ public class Jrepl
 		String result="";
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
 		String line="";
-		int counter=0;
-		
 		while (line !=null)
    		{
    			//gets the line
@@ -887,14 +897,23 @@ public class Jrepl
 	//loads a file
 	public static void loader(String filename) throws Exception
 	{
+		write("loadedimports.java", "");
+		write("loadedfunctions.java", "");
+		write("loadedclasses.java", "");
 		String temp=readfile(filename);
 		String temp1;
-		if(temp.indexOf("//:functions")==-1&&temp.indexOf("//:classes")==-1)
+		if(temp.indexOf("//:functions")==-1&&temp.indexOf("//:classes")==-1&&temp.indexOf("//imports")==-1)
 		{
 			System.out.println("Could not load file! Please mark functions and classes!");
 		}
 		else
 		{
+
+			if(temp.indexOf("//:imports")>-1)
+			{
+				temp1=temp.substring(temp.indexOf("//:imports")+"//:imports".length(), temp.indexOf("//", temp.indexOf("//:imports")+1)>-1?temp.indexOf("//", temp.indexOf("//:imports")+1):temp.length());
+				write("loadedimports.java", "//::"+filename+"\n//loaded content\n"+temp1.trim()+"\n//loaded content\n");
+			}
 			if(temp.indexOf("//:functions")>-1)
 			{
 				temp1=temp.substring(temp.indexOf("//:functions")+"//:functions".length(), temp.indexOf("//:classes")>-1?temp.indexOf("//:classes"):temp.length());
