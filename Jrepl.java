@@ -357,6 +357,7 @@ public class Jrepl
 					loadedfiles=new LinkedList<>();
 
 						//resets Test.java
+					file = file.replaceAll("\\n\\n+", "");
 					write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 			   		
 			   			//resets functions.java
@@ -388,17 +389,18 @@ public class Jrepl
 							temp=temp.toLowerCase();
 							if(temp.charAt(0)=='y')
 							{
-								loadedfunctions=loadedfunctions.substring(0, loadedfunctions.indexOf("//::"+cmd))+
-									(loadedfunctions.indexOf("//::", loadedfunctions.indexOf("//::"+cmd)+1)>-1?
-										loadedfunctions.substring(loadedfunctions.indexOf("//::", loadedfunctions.indexOf("//::"+cmd)+1), loadedfunctions.length()):"");
-
-								loadedclasses=loadedclasses.substring(0, loadedclasses.indexOf("//::"+cmd))+
-									(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1)>-1?
-										loadedclasses.substring(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1), loadedclasses.length()):"");	
-								
-								loadedimports=loadedimports.substring(0, loadedimports.indexOf("//::"+cmd))+
-									(loadedimports.indexOf("//::", loadedimports.indexOf("//::"+cmd)+1)>-1?
-										loadedimports.substring(loadedimports.indexOf("//::", loadedimports.indexOf("//::"+cmd)+1), loadedimports.length()):"");	
+								if (loadedfunctions.contains(cmd))
+									loadedfunctions=loadedfunctions.substring(0, loadedfunctions.indexOf("//::"+cmd))+
+										(loadedfunctions.indexOf("//::", loadedfunctions.indexOf("//::"+cmd)+1)>-1?
+											loadedfunctions.substring(loadedfunctions.indexOf("//::", loadedfunctions.indexOf("//::"+cmd)+1), loadedfunctions.length()):"");
+								if (loadedclasses.contains(cmd))
+									loadedclasses=loadedclasses.substring(0, loadedclasses.indexOf("//::"+cmd))+
+										(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1)>-1?
+											loadedclasses.substring(loadedclasses.indexOf("//::", loadedclasses.indexOf("//::"+cmd)+1), loadedclasses.length()):"");	
+								if (loadedimports.contains(cmd))					
+									loadedimports=loadedimports.substring(0, loadedimports.indexOf("//::"+cmd))+
+										(loadedimports.indexOf("//::", loadedimports.indexOf("//::"+cmd)+1)>-1?
+											loadedimports.substring(loadedimports.indexOf("//::", loadedimports.indexOf("//::"+cmd)+1), loadedimports.length()):"");	
 								
 								loadedfiles.remove(cmd);	
 							}
@@ -412,6 +414,7 @@ public class Jrepl
 							loadedfunctions+=readfile("loadedfunctions.java");
 							loadedclasses+=readfile("loadedclasses.java");
 							loadedimports+=readfile("loadedimports.java");
+							file = file.replaceAll("\\n\\n+", "");
 							write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 						}
 					}
@@ -474,7 +477,7 @@ public class Jrepl
 			{
 				//prints the output of logical or mathematical statements
 				if((((cmd.contains("+")||cmd.contains("-")||cmd.contains("/")||cmd.contains("*")||cmd.contains("%"))&&!cmd.contains("="))
-					||(cmd.contains("==")||cmd.contains("||")||cmd.contains("&&")))&&!cmd.contains("System.out.print"))
+					||(cmd.contains("==")||cmd.contains("||")||cmd.contains("&&")||cmd.contains("|")||cmd.contains("^")||cmd.contains("&")))&&!cmd.contains("System.out.print")&&!cmd.contains("print"))
 					{
 						if (cmd.endsWith(";"))
 						{
@@ -482,6 +485,10 @@ public class Jrepl
 						}
 						cmd="System.out.println("+cmd+");";
 					}
+				if(cmd.startsWith("print("))
+				{
+					cmd = "System.out.println("+cmd.substring(cmd.indexOf("(")+1, cmd.indexOf(")")+1)+";";
+				}
 				//Exits program, not placed under Jrepl commands as I didn't want to prefix exit. 	
 				if(cmd.equals("exit"))
 				{
@@ -565,6 +572,7 @@ public class Jrepl
 				functions=" ";
 		   	
 		   	//writes everything to Test.java
+		   	file = file.replaceAll("\\n\\n+", "");
 			write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 			
 			if(!cmd.equals(""))
@@ -614,6 +622,7 @@ public class Jrepl
 		   						write("functions.java", functions);
 		   								//updates Test.java
 						   		file=file.trim();
+						   		file = file.replaceAll("\\n\\n+", "");
 		   						write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses+dontprintme);
 					   			//compiles the file again, just to find out if the most recent command caused the error.
 					  				compile();
@@ -640,6 +649,7 @@ public class Jrepl
 									
 									//updates Test.java
 						   		file=file.trim();
+						   		file = file.replaceAll("\\n\\n+", "");
 		   						write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 					   				//compiles the file again, just to find out if the most recent command caused the error.
 				   				compile();
@@ -670,6 +680,7 @@ public class Jrepl
 	   		{
 	   			System.out.println("\n[Done processing!]\n");
 	   		} 	
+	   		System.out.println("-----\nEnd of output");
 	   		//resets some files	
 	   		pw = new PrintWriter("functions.java");
 			pw.close();
@@ -703,7 +714,7 @@ public class Jrepl
 		   		}
 
 		   		
-		   		
+		   		file = file.replaceAll("\\n\\n+", "");
 		   		write("Test.java", imports+loadedimports+file+"\n}\n"+functions+"\n"+loadedfunctions+"\n}\n"+classes+"\n"+loadedclasses);
 				
 		   	//updates functions.java	

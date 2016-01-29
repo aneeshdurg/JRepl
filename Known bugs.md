@@ -1,4 +1,4 @@
-*On exit classes, function, Test.java left behind
+*On exit some files left behind
 
 *prompt is glitchy
 
